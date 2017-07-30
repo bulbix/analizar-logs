@@ -1,0 +1,67 @@
+/* 
+    Created on : 27/07/2017, 03:01:08 PM
+    Author     : acruzb
+*/
+::-ms-clear {
+  display: none;
+}
+
+.form-control-clear {
+  z-index: 10;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+
+/*Contador de lineas*/
+pre#textareaResultado {
+    min-height: 260px; 
+    max-height: 400px; 
+    overflow-y: scroll;
+
+    font-family: monospace;
+    padding: 0.5em;
+    line-height: 0;
+    counter-reset: line;
+}
+
+span.line-number {
+    display: block;
+    line-height: 1.5rem;
+}
+
+span.line-number:before {
+    position: relative;
+    width: 60px;
+    text-align: right;
+
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    border-right: 1px solid #ddd;
+    padding: 0 .5em;
+    margin-right: .5em;
+    color: #888
+}
+
+
+/*estilo de json pretty*/
+span.string {
+    color: #008000;
+}
+
+span.number {
+    color: #0000ff;
+}
+
+span.boolean {
+    color: #b22222;
+}
+
+span.null {
+    color: #808080;
+}
+
+span.key {
+    color: #000000;
+}
