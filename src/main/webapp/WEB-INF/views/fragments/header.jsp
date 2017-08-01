@@ -9,3 +9,4 @@
 <link href="<c:url value='/webjars/bootstrap/3.3.7/css/bootstrap.min.css'/>" rel="stylesheet" type="text/css">
 <link href="<c:url value='/webjars/font-awesome/4.7.0/css/font-awesome.css'/>" rel="stylesheet" type="text/css">
 <link href="<c:url value='/css/extras/animate.css'/>" rel="stylesheet" type="text/css">
+<link href="<c:url value='/css/bootstrap-formhelpers.min.css'/>" rel="stylesheet" type="text/css">

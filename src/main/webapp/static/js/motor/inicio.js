@@ -1,54 +1,10 @@
-var myAngularApp = angular.module('myApp', ['ngCookies', 'ui.bootstrap']);//'ngAnimate', 'ngSanitize', 'ui.bootstrap'
-myAngularApp.controller('BusquedasController', function ($scope, $http, $window) {
-    
-    var base = "http://" + $window.location.hostname + ":" + $window.location.port + $window.location.pathname;
-    
-    $scope.usuario = {
-        tipo: 'usuario',
-        nombreUsuario: '',
-        nombre: '',
-        apellido: '',
-        icu: ''
-    };
-    
-    $scope.fnFormularioBuscarUsuario = function(type){
-        $scope.usuario.tipo = type;
-        console.log($scope.usuario.tipo);
-    };
-    
-    $scope.submitBuscarUsuario = function() {
-        console.log('Inicia la busqueda del usuario: ' + JSON.stringify($scope.usuario));
-        emptyResult();
-        loading(true);
-        $http({withCredentials: true,
-            method: 'POST',
-            url: base + '/obtener/informacion/usuario',
-            data: $scope.usuario
-            })
-            .then(function (response){
-                $scope.usuario.nombreUsuario = '';
-                $scope.usuario.nombre = '';
-                $scope.usuario.apellido = '';
-                $scope.usuario.icu = '';
-                console.log("Se obtienen la informacion del usuario: ");
-                console.log(response);
-                if(null !== response.data && response.data !== ''){
-                    console.log(JSON.stringify(response.data, undefined, 2));
-                    escribirDataResult(syntaxHighlight(response.data));
-                }
-                else{
-                    console.log("No se encontraron datos de la búsqueda.");
-                    escribirNoResult();
-                }
-        }).catch(function(response) {
-            validarErrorHTTP(response);
-        }).finally(function() {
-            loading(false);
-        });
-    };
-    
-});
+//Variables globales
 
+
+
+var myAngularApp = angular.module('myApp', ['ngCookies', 'ui.bootstrap']);//'ngAnimate', 'ngSanitize', 'ui.bootstrap'
+
+//Información general
 myAngularApp.controller('InformacionGeneralController', function ($scope, $http, $window) {
     var base = "http://" + $window.location.hostname + ":" + $window.location.port + $window.location.pathname;
     
@@ -102,6 +58,101 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
             console.error('Error occurred:', response.status, response.data);
         });
     };
+});
+
+//Sección de búsquedas
+myAngularApp.controller('BusquedasController', function ($scope, $http, $window) {
+    
+    var base = "http://" + $window.location.hostname + ":" + $window.location.port + $window.location.pathname;
+    
+    //Busqueda de usuarios
+    $scope.usuario = {
+        tipo: 'usuario',
+        nombreUsuario: '',
+        nombre: '',
+        apellido: '',
+        icu: ''
+    };
+    
+    $scope.fnFormularioBuscarUsuario = function(type){
+        $scope.usuario.tipo = type;
+        console.log($scope.usuario.tipo);
+    };
+    
+    $scope.submitBuscarUsuario = function() {
+        console.log('Inicia la busqueda del usuario: ' + JSON.stringify($scope.usuario));
+        emptyResult();
+        loading(true);
+        $http({withCredentials: true,
+            method: 'POST',
+            url: base + '/obtener/informacion/usuario',
+            data: $scope.usuario
+            })
+            .then(function (response){
+                $scope.usuario.nombreUsuario = '';
+                $scope.usuario.nombre = '';
+                $scope.usuario.apellido = '';
+                $scope.usuario.icu = '';
+                console.log("Se obtienen la informacion del usuario: ");
+                console.log(response);
+                if(null !== response.data && response.data !== ''){
+                    console.log(JSON.stringify(response.data, undefined, 2));
+                    escribirDataResult(syntaxHighlight(response.data));
+                }
+                else{
+                    console.log("No se encontraron datos de la búsqueda.");
+                    escribirNoResult();
+                }
+        }).catch(function(response) {
+            validarErrorHTTP(response);
+        }).finally(function() {
+            loading(false);
+        });
+    };
+    
+    //Busqueda general
+    $scope.checkboxGeneralModel = {
+        usuario : {
+            visible: false,
+            valor: 'usuario'
+        },
+        trAlnova : {
+            visible: false,
+            valor: 'trAlnova'
+        },
+        ruta: {
+            visible: false,
+            valor: 'ruta'
+        },
+        textoLibre: {
+            visible: false,
+            valor: 'textoLibre'
+        },
+        rangoTiempo: {
+            visible: false,
+            valor: 'rangoTiempo'
+        }
+    };
+    
+    $scope.fnValidaCriterio = function(option){
+        if(option === $scope.checkboxGeneralModel.usuario.valor){
+            $scope.checkboxGeneralModel.ruta.visible = false;
+            $scope.checkboxGeneralModel.textoLibre.visible = false;
+        }
+        else if(option === $scope.checkboxGeneralModel.ruta.valor){
+            $scope.checkboxGeneralModel.usuario.visible = false;
+            $scope.checkboxGeneralModel.textoLibre.visible = false;
+        }
+        else if(option === $scope.checkboxGeneralModel.textoLibre.valor){
+            $scope.checkboxGeneralModel.usuario.visible = false;
+            $scope.checkboxGeneralModel.trAlnova.visible = false;
+            $scope.checkboxGeneralModel.ruta.visible = false;
+        }
+        else if(option === $scope.checkboxGeneralModel.trAlnova.valor){
+            $scope.checkboxGeneralModel.textoLibre.visible = false;
+        }
+    };
+    
 });
 
 //JavaScript functions
@@ -183,8 +234,20 @@ var dialogArchivoNoSeleccionado = function(message){
     });
 };
 
+var mostrarFormBusqueda = function(elem){
+    $(".div-busquedas").hide();
+    $("."+elem).show();
+};
 //jQuery init
 $(function(){
+    
+    
+    $(".divHoraInicio").on('change.bfhtimepicker', function(){
+        console.log("Hora: "+$(this).find("input").val());
+    });
+    $(".divHoraFin").on('change.bfhtimepicker', function(){
+        console.log("Hora: "+$(this).find("input").val());
+    });
     
     $('.has-clear input[type="text"]').on('input propertychange', function () {
         var $this = $(this);
@@ -196,4 +259,5 @@ $(function(){
         $(this).siblings('input[type="text"]').val('')
                 .trigger('propertychange').focus();
     });
+    
 });

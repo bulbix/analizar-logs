@@ -12,7 +12,6 @@
   cursor: pointer;
 }
 
-
 /*Contador de lineas*/
 pre#textareaResultado {
     min-height: 260px; 

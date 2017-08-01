@@ -18,6 +18,7 @@
             <script type="text/javascript" src="<c:url value='/webjars/angularjs/1.6.4/angular-animate.min.js'/>"></script>
             <script type="text/javascript" src="<c:url value='/webjars/angularjs/1.6.4/angular-sanitize.min.js'/>"></script>
             <script type="text/javascript" src="<c:url value='/js/extra/bootbox.min.js'/>"></script>
+            <script type="text/javascript" src="<c:url value='/js/bootstrap-formhelpers.min.js'/>"></script>
         </footer>
     </div>
 </div>

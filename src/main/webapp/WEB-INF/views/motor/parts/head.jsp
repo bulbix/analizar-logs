@@ -32,8 +32,8 @@
                     <ul class="dropdown-menu">
                         <li role="separator" class="divider"></li>
                         <li class="dropdown-header">Busquedas</li>
-                        <li><a href="#">Busqueda de usuarios</a></li>
-                        <li><a href="#">Busqueda de general</a></li>
+                        <li onclick="mostrarFormBusqueda('divBusquedaUsuarios')"><a href="#">Busqueda de usuarios</a></li>
+                        <li onclick="mostrarFormBusqueda('divBusquedaGeneral')"><a href="#">Busqueda de general</a></li>
                         <li role="separator" class="divider"></li>
                         <li class="dropdown-header">Cifrado</li>
                         <li><a href="#">Cifrado</a></li>
