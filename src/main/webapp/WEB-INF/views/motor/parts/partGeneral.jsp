@@ -13,7 +13,7 @@
                 <label class="col-sm-12 control-label" style="text-align: center;">Búsqueda de información general</label>
             </div>
             <div class="row">
-                <form class="form-horizontal" role="form" ng-submit="submitBuscarUsuario()">
+                <form class="form-horizontal" role="form" ng-submit="submitBusquedaGeneral()">
                     <div class="form-group">
                         <div class="col-sm-10 col-sm-offset-1">
                             <div class="row">
@@ -28,7 +28,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group has-clear">
-                                                <input type="text" class="form-control" placeholder="Ingrese el nombre de usuario" ng-readonly="!checkboxGeneralModel.usuario.visible"/>
+                                                <input type="text" class="form-control" placeholder="Ingrese el nombre de usuario" ng-model="checkboxGeneralModel.usuario.texto" ng-readonly="!checkboxGeneralModel.usuario.visible"/>
                                                 <span class="form-control-clear glyphicon glyphicon-remove form-control-feedback hidden"></span>
                                             </div>
                                         </div>
@@ -45,7 +45,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group has-clear">
-                                                <input type="text" class="form-control" placeholder="Ingrese la TR" ng-readonly="!checkboxGeneralModel.trAlnova.visible"/>
+                                                <input type="text" class="form-control" placeholder="Ingrese la TR" ng-model="checkboxGeneralModel.trAlnova.texto" ng-readonly="!checkboxGeneralModel.trAlnova.visible"/>
                                                 <span class="form-control-clear glyphicon glyphicon-remove form-control-feedback hidden"></span>
                                             </div>
                                         </div>
@@ -62,7 +62,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group has-clear">
-                                                <input type="text" class="form-control" placeholder="Ingrese la ruta del servicio" ng-readonly="!checkboxGeneralModel.ruta.visible"/>
+                                                <input type="text" class="form-control" placeholder="Ingrese la ruta del servicio" ng-model="checkboxGeneralModel.ruta.texto" ng-readonly="!checkboxGeneralModel.ruta.visible"/>
                                                 <span class="form-control-clear glyphicon glyphicon-remove form-control-feedback hidden"></span>
                                             </div>
                                         </div>
@@ -81,7 +81,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group has-clear">
-                                                <input type="text" class="form-control" placeholder="Ingrese texto libre" ng-readonly="!checkboxGeneralModel.textoLibre.visible"/>
+                                                <input type="text" class="form-control" placeholder="Ingrese texto libre" ng-model="checkboxGeneralModel.textoLibre.texto" ng-readonly="!checkboxGeneralModel.textoLibre.visible"/>
                                                 <span class="form-control-clear glyphicon glyphicon-remove form-control-feedback hidden"></span>
                                             </div>
                                         </div>

@@ -16,14 +16,14 @@ import org.codehaus.jackson.map.ObjectMapper;
  *
  * @author acruzb
  */
-public class Usuario {
+public class UsuarioDTO {
     private String tipo;
     private String nombreUsuario;
     private String nombre;
     private String apellido;
     private String icu;
 
-    public Usuario() {
+    public UsuarioDTO() {
     }
 
     public String getApellido() {

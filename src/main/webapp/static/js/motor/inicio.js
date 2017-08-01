@@ -114,23 +114,28 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
     $scope.checkboxGeneralModel = {
         usuario : {
             visible: false,
-            valor: 'usuario'
+            valor: 'usuario',
+            texto: ''
         },
         trAlnova : {
             visible: false,
-            valor: 'trAlnova'
+            valor: 'trAlnova',
+            texto: ''
         },
         ruta: {
             visible: false,
-            valor: 'ruta'
+            valor: 'ruta',
+            texto: ''
         },
         textoLibre: {
             visible: false,
-            valor: 'textoLibre'
+            valor: 'textoLibre',
+            texto: ''
         },
         rangoTiempo: {
             visible: false,
-            valor: 'rangoTiempo'
+            valor: 'rangoTiempo',
+            texto: ''
         }
     };
     
@@ -140,7 +145,7 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
             $scope.checkboxGeneralModel.textoLibre.visible = false;
         }
         else if(option === $scope.checkboxGeneralModel.ruta.valor){
-            $scope.checkboxGeneralModel.usuario.visible = false;
+            $scope.checkboxGeneralModel.trAlnova.visible = false;
             $scope.checkboxGeneralModel.textoLibre.visible = false;
         }
         else if(option === $scope.checkboxGeneralModel.textoLibre.valor){
@@ -150,7 +155,48 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
         }
         else if(option === $scope.checkboxGeneralModel.trAlnova.valor){
             $scope.checkboxGeneralModel.textoLibre.visible = false;
+            $scope.checkboxGeneralModel.ruta.visible = false;
         }
+    };
+    
+    $scope.checkboxGeneralClean = function(){
+        $scope.checkboxGeneralModel.usuario.texto = '';
+        $scope.checkboxGeneralModel.trAlnova.texto = '';
+        $scope.checkboxGeneralModel.ruta.texto = '';
+        $scope.checkboxGeneralModel.textoLibre.texto = '';
+        $scope.checkboxGeneralModel.rangoTiempo.texto = '';
+    };
+    
+    $scope.submitBusquedaGeneral = function(){
+        console.log('Inicia la busqueda del usuario: ' + JSON.stringify($scope.checkboxGeneralModel));
+        emptyResult();
+        loading(true);
+        if($scope.checkboxGeneralModel.rangoTiempo.visible){
+            
+        }
+        $http({withCredentials: true,
+            method: 'POST',
+            url: base + '/busqueda/general',
+            data: $scope.checkboxGeneralModel
+            })
+            .then(function (response){
+                $scope.checkboxGeneralClean();
+                console.log("Se obtienen la informacion de la búsqueda: ");
+                console.log(response);
+                if(null !== response.data && response.data !== ''){
+                    console.log(JSON.stringify(response.data, undefined, 2));
+                    escribirDataResult(syntaxHighlight(response.data));
+                }
+                else{
+                    console.log("No se encontraron datos de la búsqueda.");
+                    escribirNoResult();
+                }
+        }).catch(function(response) {
+            console.log('Error: ', response);
+//            validarErrorHTTP(response);
+        }).finally(function() {
+            loading(false);
+        });
     };
     
 });

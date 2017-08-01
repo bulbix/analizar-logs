@@ -10,8 +10,8 @@ import com.baz.mx.beans.ArchivoFTP;
 import com.baz.mx.beans.InformacionSession;
 import com.baz.mx.business.FileSearchOperations;
 import com.baz.mx.business.ListarArchivos;
-import com.baz.mx.dto.Usuario;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.baz.mx.dto.BusquedaGeneralDTO;
+import com.baz.mx.dto.UsuarioDTO;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
@@ -86,7 +86,7 @@ public class MotorController {
     
     @PostMapping(value= "obtener/informacion/usuario", consumes = "application/json", produces = "application/json")
     @ResponseBody
-    public String getUserInformation(@RequestBody Usuario usuario) throws ArchivoNoSeleccionadoException{
+    public String getUserInformation(@RequestBody UsuarioDTO usuario) throws ArchivoNoSeleccionadoException{
         LOGGER.info("json recibido: " + usuario);
         String path = sessionData.getRutaArchivoId(sessionData.getIdArchivo());
         LOGGER.info("path a consultar: " + path);
@@ -101,6 +101,45 @@ public class MotorController {
             default:
                 return null;
         }
+    }
+    
+    @PostMapping(value= "busqueda/general", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public String getGeneralInformation(@RequestBody BusquedaGeneralDTO infoBusqueda) throws ArchivoNoSeleccionadoException{
+        LOGGER.info("json recibido: " + infoBusqueda);
+        String path = sessionData.getRutaArchivoId(sessionData.getIdArchivo());
+        LOGGER.info("path a consultar: " + path);
+        validaPathSeleccionado(path);
+        //Solo usuario
+        if (infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()) {//Solo usuario
+            FileSearchOperations.procesarSoloUsuario(Paths.get(path), infoBusqueda.getUsuario().getTexto(), false);
+        }
+        //solo tr
+        else if(!infoBusqueda.getUsuario().isVisible() && infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
+            LOGGER.info("Se procesa solo tr.");
+//            procesarSoloTR(path);
+        }
+        //solo ruta
+        else if(!infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && infoBusqueda.getRuta().isVisible()){
+            LOGGER.info("Se procesa solo ruta.");
+//            procesarSoloRuta(path);
+        }
+        //solo libre
+        else if(!infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
+            LOGGER.info("Se procesa solo libre.");
+//            procesarSoloLibre(path);
+        }
+        //usuario y tr
+        else if(infoBusqueda.getUsuario().isVisible() && infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
+            LOGGER.info("Se procesa solo usuario y tr.");
+//            procesarUsuarioTR(path);
+        }
+        //usuario y ruta
+        else if(infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && infoBusqueda.getRuta().isVisible()){
+            LOGGER.info("Se procesa solo usuario y ruta.");
+//            procesarUsuarioRuta(path);
+        }
+        return null;
     }
     
     private void validaPathSeleccionado(String path) throws ArchivoNoSeleccionadoException {
