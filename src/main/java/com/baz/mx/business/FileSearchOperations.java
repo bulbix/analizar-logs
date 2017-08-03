@@ -8,14 +8,13 @@ package com.baz.mx.business;
 import com.baz.mx.beans.Registro;
 import static com.baz.mx.business.Validaciones.escribirTextPaneMenosUnaLinea;
 import static com.baz.mx.business.Validaciones.getHiloCompletoDeLinea;
-import static com.baz.mx.business.Validaciones.getHiloDeLinea;
 import static com.baz.mx.business.Validaciones.isEndOperationLine;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
@@ -31,7 +30,7 @@ public class FileSearchOperations {
     
     private static final Logger LOGGER = Logger.getLogger(FileSearchOperations.class);
     public final static Charset ENCODING = StandardCharsets.UTF_8;
-    private static final String NEW_LINE = System.getProperty("line.separator");
+    public static final String NEW_LINE = System.getProperty("line.separator");
 
     public static final String SINTAXIS_USUARIO = " - Alias: ";
     public static final String SINTAXIS_TR = "Transaccion ";
@@ -40,15 +39,19 @@ public class FileSearchOperations {
     public static final String SINTAXIS_INFO_CLIENTE = "BusquedaPersonaImpl:";
     public static final String SINTAXIS_INFO_CLIENTE_FULL = ".*BusquedaPersonaImpl:\\d+.*";
     public static final String SINTAXIS_HILO_HIJO = ".*PrintThrowThreadConcurrentTaskExecutor:\\d+ - El hilo.*";
-    public static final String PATH_OPERACION_STATUS = ".*ObjEncriptacionSeguridad:\\d+ - doObjToStrJSON:.*codigoOperacion.*";
+    public static final String PATH_OPERACION_STATUS = ".*%s.*ObjEncriptacionSeguridad:\\d+ - doObjToStrJSON:.*codigoOperacion.*";
     
-    private static final int MAX_LINEAS_POR_HILO = 250;
-    private static final int LINEAS_HILO_DIF_MAX = 300;
+    private static final int MAX_LINEAS_POR_HILO = 5000;
+    private static final int LINEAS_HILO_DIF_MAX = 500;
 
     private static ArrayList<String> clientesEncontrados;
 
     public FileSearchOperations() {
         clientesEncontrados = new ArrayList<>();
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(procesarSoloUsuario(Paths.get("E:\\Users\\acruzb\\Documents\\NetBeansProjects\\VerificadorLogs\\logs\\server.log.2017-08-02.158 ok"), "yanelike", false));
     }
     
     //SECCION DE CONSULTA DE INFORMACION DE USUARIOS
@@ -227,7 +230,6 @@ public class FileSearchOperations {
         String hilo = null;
         int lineaHiloDif = 0;
         LOGGER.info("Iniciando la busqueda del usuario: " + usuarioField);
-        LOGGER.info(usuarioField);
         usuarioField = usuarioField.toLowerCase();
         LineIterator it = null;
         StringBuilder salida = new StringBuilder();
@@ -237,7 +239,7 @@ public class FileSearchOperations {
             while (it.hasNext()) {
                 String line = it.nextLine();
                 registro.add(line);
-                if (line.contains(SINTAXIS_USUARIO) && line.toLowerCase().contains(usuarioField)) {
+                if (!encontrado && line.contains(SINTAXIS_USUARIO) && line.toLowerCase().contains(usuarioField)) {
                     //CHECAR LAS FORMA...
                     boolean isRango = true;
                     if(intervaloHora){
@@ -249,22 +251,22 @@ public class FileSearchOperations {
                         encontrado = true;
                         lineasPorHilo = 0;
                         LOGGER.info("procesando hilo " + hilo);
-                        salida = escribirTextPaneMenosUnaLinea(registro.getRegistro(), hilo);
-//                        escribirTextPaneMenosUnaLinea(registro.getRegistro(), null, hilo);
-//                        escribirTextPane(line, keyWordStyleAzul);
+                        escribirTextPaneMenosUnaLinea(salida, registro.getRegistro(), hilo);
                     }
                 }
                 if (encontrado) {
                     if (line.contains(hilo) && lineasPorHilo++ <= MAX_LINEAS_POR_HILO) {
                         salida.append(line).append(NEW_LINE);
-//                        escribirTextPane(line, null);
                     } else {
                         lineaHiloDif++;
                     }
                     if(lineaHiloDif >= LINEAS_HILO_DIF_MAX){
                         encontrado = false;
+                        System.out.println("SE ALCANZÓ EL MAXIMO " + lineaHiloDif);
                     }
-                    if(isEndOperationLine(line)){//Fin de la operacion
+                    if(isEndOperationLine(line, hilo)){//Fin de la operacion
+                        salida.append(NEW_LINE);
+                        System.out.println("OUT:.....................................");
                         encontrado = false;
                     }
                 }
@@ -275,6 +277,7 @@ public class FileSearchOperations {
             LineIterator.closeQuietly(it);
             if(encontrado){
             }
+            LOGGER.info("Se tiene una cadena de largo: " + salida.length());
             LOGGER.info("Termina la busqueda");
         }
         return salida.toString();

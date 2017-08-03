@@ -103,16 +103,17 @@ public class MotorController {
         }
     }
     
-    @PostMapping(value= "busqueda/general", consumes = "application/json", produces = "application/json")
+    @PostMapping(value= "busqueda/general", consumes = "application/json", produces = "text/plain")
     @ResponseBody
     public String getGeneralInformation(@RequestBody BusquedaGeneralDTO infoBusqueda) throws ArchivoNoSeleccionadoException{
         LOGGER.info("json recibido: " + infoBusqueda);
         String path = sessionData.getRutaArchivoId(sessionData.getIdArchivo());
         LOGGER.info("path a consultar: " + path);
         validaPathSeleccionado(path);
+        String respuesta = null;
         //Solo usuario
         if (infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()) {//Solo usuario
-            FileSearchOperations.procesarSoloUsuario(Paths.get(path), infoBusqueda.getUsuario().getTexto(), false);
+            respuesta = FileSearchOperations.procesarSoloUsuario(Paths.get(path), infoBusqueda.getUsuario().getTexto(), false);
         }
         //solo tr
         else if(!infoBusqueda.getUsuario().isVisible() && infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
@@ -139,7 +140,7 @@ public class MotorController {
             LOGGER.info("Se procesa solo usuario y ruta.");
 //            procesarUsuarioRuta(path);
         }
-        return null;
+        return respuesta;
     }
     
     private void validaPathSeleccionado(String path) throws ArchivoNoSeleccionadoException {

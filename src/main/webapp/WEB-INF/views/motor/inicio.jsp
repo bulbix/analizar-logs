@@ -94,6 +94,24 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Modal para visualización de json con formato-->
+                <div class="modal fade" id="modalJSONFormato" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">JSON</h4>
+                            </div>
+                            <div class="modal-body">
+                                <pre id="preJSONResultado"></pre>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default btn-copy-clipboard" data-dismiss="modal" data-clipboard-action="copy" data-clipboard-target="#preJSONResultado">Copiar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <section id="seleccion-busqueda" class="container" ng-controller="BusquedasController">
@@ -107,9 +125,14 @@
             </section>
 
             <section id="seleccion-resultado" class="container">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">Resultado de la búsqueda</div>
-                    <div  class="panel-body" style="min-height: 300px; max-height: 450px;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Resultado de la búsqueda</h3>
+                        <ul class="list-inline panel-actions">
+                            <li><a href="#" id="panel-fullscreen" role="button" title="Toggle fullscreen"><i class="glyphicon glyphicon-resize-full"></i></a></li>
+                        </ul>
+                    </div>
+                    <div  class="panel-body" style="min-height: 300px;">
                         <pre id="textareaResultado"></pre>
                     </div>
                 </div>

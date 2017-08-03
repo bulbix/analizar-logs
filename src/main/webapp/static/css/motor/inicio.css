@@ -2,6 +2,38 @@
     Created on : 27/07/2017, 03:01:08 PM
     Author     : acruzb
 */
+
+/*Panel maximizar*/
+.panel-actions {
+  margin-top: -20px;
+  margin-bottom: 0;
+  text-align: right;
+}
+.panel-actions a {
+  color:#333;
+}
+.panel-fullscreen {
+    display: block;
+    z-index: 9999;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    overflow: auto;
+}
+
+.panel-fullscreen .panel-body{
+    height: 90% !important;
+}
+
+.panel-fullscreen pre#textareaResultado{
+    height: 100%; 
+}
+
+
 ::-ms-clear {
   display: none;
 }
@@ -12,8 +44,18 @@
   cursor: pointer;
 }
 
-/*Contador de lineas*/
+/*Contador de lineas para json*/
 pre#textareaResultado {
+    height: 260px; 
+    overflow-y: scroll;
+
+    font-family: monospace;
+    padding: 0.5em;
+    line-height: 0;
+    counter-reset: line;
+}
+
+pre#preJSONResultado {
     min-height: 260px; 
     max-height: 400px; 
     overflow-y: scroll;
@@ -43,7 +85,6 @@ span.line-number:before {
     color: #888
 }
 
-
 /*estilo de json pretty*/
 span.string {
     color: #008000;
@@ -63,4 +104,19 @@ span.null {
 
 span.key {
     color: #000000;
+}
+
+span.string-path{
+    color: blue;
+    font-weight: bold;
+}
+
+span.string-alias{
+    color: green;
+    font-weight: bold;
+}
+
+span.string-respuesta{
+    color: black;
+    font-weight: bold;
 }

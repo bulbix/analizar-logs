@@ -5,6 +5,7 @@
  */
 package com.baz.mx.business;
 
+import static com.baz.mx.business.FileSearchOperations.NEW_LINE;
 import static com.baz.mx.business.FileSearchOperations.PATH_OPERACION_STATUS;
 import static com.baz.mx.business.FileSearchOperations.SINTAXIS_HILO;
 import static com.baz.mx.business.FileSearchOperations.SINTAXIS_RUTA;
@@ -15,8 +16,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 import org.apache.log4j.Logger;
 
 /**
@@ -26,7 +25,6 @@ import org.apache.log4j.Logger;
 public class Validaciones {
     
     private static final Logger LOGGER = Logger.getLogger(Validaciones.class);
-    private static Object NEW_LINE;
 
     public static synchronized String getRutaDeLinea(String line) {
         String regex = ".*(PathInterceptor:2. - )([A-Za-z0-9\\/-]+).*";
@@ -139,8 +137,8 @@ public class Validaciones {
         return "";
     }
 
-    public static synchronized boolean isEndOperationLine(String line) {
-        return line.matches(PATH_OPERACION_STATUS);
+    public static synchronized boolean isEndOperationLine(String line, String hilo) {
+        return line.matches(String.format(PATH_OPERACION_STATUS, hilo));
     }
 
     public static synchronized boolean validarRangoDeTiempo(String linea, String horaInicio, String horaFin){
@@ -155,10 +153,9 @@ public class Validaciones {
         return false;
     }
     
-    public static StringBuilder escribirTextPaneMenosUnaLinea(ArrayList<String> lista, String hilo, String ... ruta){
+    public static void escribirTextPaneMenosUnaLinea(StringBuilder sb, ArrayList<String> lista, String hilo, String ... ruta){
         ArrayList<String> listaAux = new ArrayList<>();
         ArrayList<Integer> pos = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
         for (String line : lista) {
             try {
                 String hiloLinea = getHiloCompletoDeLinea(line);
@@ -192,7 +189,6 @@ public class Validaciones {
 //                }
             }
         }
-        return sb;
     }
     
 }

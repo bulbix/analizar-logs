@@ -97,7 +97,7 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
                 console.log(response);
                 if(null !== response.data && response.data !== ''){
                     console.log(JSON.stringify(response.data, undefined, 2));
-                    escribirDataResult(syntaxHighlight(response.data));
+                    escribirDataResult(syntaxHighlightJSON(response.data));
                 }
                 else{
                     console.log("No se encontraron datos de la búsqueda.");
@@ -185,7 +185,7 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
                 console.log(response);
                 if(null !== response.data && response.data !== ''){
                     console.log(JSON.stringify(response.data, undefined, 2));
-                    escribirDataResult(syntaxHighlight(response.data));
+                    escribirDataResult(syntaxHighlightText(response.data));
                 }
                 else{
                     console.log("No se encontraron datos de la búsqueda.");
@@ -203,7 +203,7 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
 
 //JavaScript functions
 
-var syntaxHighlight = function (json) {
+var syntaxHighlightJSON = function (json) {
     if (typeof json !== 'string') {
         json = JSON.stringify(json, undefined, 2);
     }
@@ -224,7 +224,38 @@ var syntaxHighlight = function (json) {
         }
         return '<span class="' + cls + '">' + match + '</span>';
     });
-}
+};
+
+var syntaxHighlightText = function(data){
+    //regex de rutas
+    var regexPath = /PathInterceptor:\d+ - \/[\/\w+]+/g;// /api/...
+    var regexAlias = /AspectoWalletController:\d+ - Alias: .+\s\s/g;// /api/...
+    var regexResponse = /ObjEncriptacionSeguridad:\d+ - doObjToStrJSON:\{\".*codigoOperacion.*\}\s/g;
+    data = "<span class= 'line-number'>" + data.replace(/\n/g, "</span>\n" + "<span class= 'line-number'>") + "</span>";
+    //Se agrega la clase de todos los path's
+    var res = data.match(regexPath);
+    if(null !== res){
+        for (i = 0; i < res.length; i++) { 
+            data = data.replace(res[i], "<span class='string-path'>"+res[i]+"</span>");
+        }
+    }
+    //Se agregan las clases de los alias
+    res = data.match(regexAlias);
+    if(null !== res){
+        for (i = 0; i < res.length; i++) { 
+            data = data.replace(res[i], "<span class='string-alias'>"+res[i]+"</span>");
+        }
+    }
+    //Se agregan las clases de los las respuestas
+    res = data.match(regexResponse);
+    if(null !== res){
+        for (i = 0; i < res.length; i++) { 
+            data = data.replace(res[i], "<span class='string-respuesta'>"+res[i]+"</span>");
+        }
+    }
+    
+    return data;
+};
 
 var emptyResult = function(){
     $("#textareaResultado").empty();
@@ -284,10 +315,29 @@ var mostrarFormBusqueda = function(elem){
     $(".div-busquedas").hide();
     $("."+elem).show();
 };
+
 //jQuery init
 $(function(){
     
+    $("#panel-fullscreen").click(function (e) {
+        e.preventDefault();
+        
+        var $this = $(this);
     
+        if ($this.children('i').hasClass('glyphicon-resize-full'))
+        {
+            $this.children('i').removeClass('glyphicon-resize-full');
+            $this.children('i').addClass('glyphicon-resize-small');
+        }
+        else if ($this.children('i').hasClass('glyphicon-resize-small'))
+        {
+            $this.children('i').removeClass('glyphicon-resize-small');
+            $this.children('i').addClass('glyphicon-resize-full');
+        }
+        $(this).closest('.panel').toggleClass('panel-fullscreen');
+    });
+    
+    //Div de rango de tiempo
     $(".divHoraInicio").on('change.bfhtimepicker', function(){
         console.log("Hora: "+$(this).find("input").val());
     });
@@ -306,4 +356,53 @@ $(function(){
                 .trigger('propertychange').focus();
     });
     
+    
+    //toastr optiones para mensajes de información en pantalla
+    toastr.options = {
+        "debug": false,
+        "positionClass": "toast-bottom-right",
+        "onclick": null,
+        "fadeIn": 300,
+        "fadeOut": 1000,
+        "timeOut": 5000,
+        "extendedTimeOut": 500
+    };
+    
+    //clipboard configuración
+    var clipboard = new Clipboard('.btn-copy-clipboard');
+
+    clipboard.on('success', function(e) {
+        toastr.info("El json se ha copiado al clipboard.");
+    });
+
+    clipboard.on('error', function(e) {
+        toastr.error("No se pudo copiar al clipboard.");
+    });
+    
+    //Configuración del popup menu
+    var menu3 = new BootstrapMenu('.string-respuesta', {
+        menuEvent: 'hover',
+        menuSource: 'element',
+        menuPosition: 'belowRight', // default value, can be omitted
+        fetchElementData: function($rowElem) {
+            var str = $($rowElem).text();
+            var regex = /\{\s*\".*\}/g;
+            var res = str.match(regex);
+            $("#preJSONResultado").empty();
+            if(null !== res){
+                var json = JSON.parse(res[0]);
+                $("#preJSONResultado").append(syntaxHighlightJSON(json));
+                return true;
+            }
+            return false;
+        },
+        actions: [{
+            name: 'Ver json',
+                onClick: function(data) {
+                    toastr.info("Se muestra el resultado en formato json");
+                    $('#modalJSONFormato').modal('show');
+                }
+            }
+        ]
+    });
 });
