@@ -12,6 +12,10 @@ import com.baz.mx.business.FileSearchOperations;
 import com.baz.mx.business.ListarArchivos;
 import com.baz.mx.dto.BusquedaGeneralDTO;
 import com.baz.mx.dto.UsuarioDTO;
+import com.baz.mx.response.BusquedaGeneralResponse;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
@@ -103,9 +107,9 @@ public class MotorController {
         }
     }
     
-    @PostMapping(value= "busqueda/general", consumes = "application/json", produces = "text/plain")
+    @PostMapping(value= "busqueda/general", consumes = "application/json", produces = {"application/json"})
     @ResponseBody
-    public String getGeneralInformation(@RequestBody BusquedaGeneralDTO infoBusqueda) throws ArchivoNoSeleccionadoException{
+    public BusquedaGeneralResponse getGeneralInformation(@RequestBody BusquedaGeneralDTO infoBusqueda) throws ArchivoNoSeleccionadoException{
         LOGGER.info("json recibido: " + infoBusqueda);
         String path = sessionData.getRutaArchivoId(sessionData.getIdArchivo());
         LOGGER.info("path a consultar: " + path);
@@ -117,30 +121,28 @@ public class MotorController {
         }
         //solo tr
         else if(!infoBusqueda.getUsuario().isVisible() && infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
-            LOGGER.info("Se procesa solo tr.");
-//            procesarSoloTR(path);
+            respuesta = FileSearchOperations.procesarSoloTR(Paths.get(path), infoBusqueda.getTrAlnova().getTexto(), false);
         }
         //solo ruta
         else if(!infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && infoBusqueda.getRuta().isVisible()){
-            LOGGER.info("Se procesa solo ruta.");
-//            procesarSoloRuta(path);
+            respuesta = FileSearchOperations.procesarSoloRuta(Paths.get(path), infoBusqueda.getRuta().getTexto(), false);
         }
         //solo libre
         else if(!infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
             LOGGER.info("Se procesa solo libre.");
-//            procesarSoloLibre(path);
+            respuesta = FileSearchOperations.procesarSoloLibre(Paths.get(path), infoBusqueda.getTextoLibre().getTexto(), false);
         }
         //usuario y tr
         else if(infoBusqueda.getUsuario().isVisible() && infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
             LOGGER.info("Se procesa solo usuario y tr.");
-//            procesarUsuarioTR(path);
+            respuesta = FileSearchOperations.procesarUsuarioTR(Paths.get(path), infoBusqueda.getUsuario().getTexto(), infoBusqueda.getTrAlnova().getTexto(), false);
         }
         //usuario y ruta
         else if(infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && infoBusqueda.getRuta().isVisible()){
             LOGGER.info("Se procesa solo usuario y ruta.");
-//            procesarUsuarioRuta(path);
+            respuesta = FileSearchOperations.procesarUsuarioRuta(Paths.get(path), infoBusqueda.getUsuario().getTexto(), infoBusqueda.getRuta().getTexto(), false);
         }
-        return respuesta;
+        return new BusquedaGeneralResponse(respuesta);
     }
     
     private void validaPathSeleccionado(String path) throws ArchivoNoSeleccionadoException {

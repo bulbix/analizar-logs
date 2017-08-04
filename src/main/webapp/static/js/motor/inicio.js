@@ -159,14 +159,6 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
         }
     };
     
-    $scope.checkboxGeneralClean = function(){
-        $scope.checkboxGeneralModel.usuario.texto = '';
-        $scope.checkboxGeneralModel.trAlnova.texto = '';
-        $scope.checkboxGeneralModel.ruta.texto = '';
-        $scope.checkboxGeneralModel.textoLibre.texto = '';
-        $scope.checkboxGeneralModel.rangoTiempo.texto = '';
-    };
-    
     $scope.submitBusquedaGeneral = function(){
         console.log('Inicia la busqueda del usuario: ' + JSON.stringify($scope.checkboxGeneralModel));
         emptyResult();
@@ -180,20 +172,17 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
             data: $scope.checkboxGeneralModel
             })
             .then(function (response){
-                $scope.checkboxGeneralClean();
                 console.log("Se obtienen la informacion de la búsqueda: ");
                 console.log(response);
-                if(null !== response.data && response.data !== ''){
-                    console.log(JSON.stringify(response.data, undefined, 2));
-                    escribirDataResult(syntaxHighlightText(response.data));
+                if(null !== response.data && response.data !== '' && response.data.informacion !== null && response.data.informacion !== ""){
+                    escribirDataResult(syntaxHighlightText(response.data.informacion));
                 }
                 else{
                     console.log("No se encontraron datos de la búsqueda.");
                     escribirNoResult();
                 }
         }).catch(function(response) {
-            console.log('Error: ', response);
-//            validarErrorHTTP(response);
+            validarErrorHTTP(response);
         }).finally(function() {
             loading(false);
         });
@@ -231,6 +220,9 @@ var syntaxHighlightText = function(data){
     var regexPath = /PathInterceptor:\d+ - \/[\/\w+]+/g;// /api/...
     var regexAlias = /AspectoWalletController:\d+ - Alias: .+\s\s/g;// /api/...
     var regexResponse = /ObjEncriptacionSeguridad:\d+ - doObjToStrJSON:\{\".*codigoOperacion.*\}\s/g;
+    var entradaAlnova = "Entrada:";
+    var salidaAlnova = "Salida:";
+    
     data = "<span class= 'line-number'>" + data.replace(/\n/g, "</span>\n" + "<span class= 'line-number'>") + "</span>";
     //Se agrega la clase de todos los path's
     var res = data.match(regexPath);
@@ -253,6 +245,9 @@ var syntaxHighlightText = function(data){
             data = data.replace(res[i], "<span class='string-respuesta'>"+res[i]+"</span>");
         }
     }
+    //Se agregan las clases para las tr
+    data = data.split(entradaAlnova).join("<span class='string'>"+ entradaAlnova +"</span>");
+    data = data.split(salidaAlnova).join("<span class='string'>"+ salidaAlnova +"</span>");
     
     return data;
 };

@@ -8,6 +8,8 @@ package com.baz.mx.business;
 import com.baz.mx.beans.Registro;
 import static com.baz.mx.business.Validaciones.escribirTextPaneMenosUnaLinea;
 import static com.baz.mx.business.Validaciones.getHiloCompletoDeLinea;
+import static com.baz.mx.business.Validaciones.getRutaDeLinea;
+import static com.baz.mx.business.Validaciones.getTRDeLinea;
 import static com.baz.mx.business.Validaciones.isEndOperationLine;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -15,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
@@ -51,7 +54,7 @@ public class FileSearchOperations {
     }
     
     public static void main(String[] args) {
-        System.out.println(procesarSoloUsuario(Paths.get("E:\\Users\\acruzb\\Documents\\NetBeansProjects\\VerificadorLogs\\logs\\server.log.2017-08-02.158 ok"), "yanelike", false));
+        System.out.println(procesarUsuarioTR(Paths.get("E:\\Users\\acruzb\\Documents\\NetBeansProjects\\VerificadorLogs\\logs\\server.log.2017-08-02.158"), "lperez458", "MB09", false));
     }
     
     //SECCION DE CONSULTA DE INFORMACION DE USUARIOS
@@ -240,9 +243,8 @@ public class FileSearchOperations {
                 String line = it.nextLine();
                 registro.add(line);
                 if (!encontrado && line.contains(SINTAXIS_USUARIO) && line.toLowerCase().contains(usuarioField)) {
-                    //CHECAR LAS FORMA...
                     boolean isRango = true;
-                    if(intervaloHora){
+                    if(intervaloHora){//VERIFICACION DE INTERVALO DE TIEMPO
 //                        isRango = validarRangoDeTiempo(line);
                     }
                     if(isRango){
@@ -266,7 +268,6 @@ public class FileSearchOperations {
                     }
                     if(isEndOperationLine(line, hilo)){//Fin de la operacion
                         salida.append(NEW_LINE);
-                        System.out.println("OUT:.....................................");
                         encontrado = false;
                     }
                 }
@@ -274,12 +275,257 @@ public class FileSearchOperations {
         } catch (IOException ex) {
             
         } finally {
-            LineIterator.closeQuietly(it);
-            if(encontrado){
+            if(null != it){
+                LineIterator.closeQuietly(it);
             }
-            LOGGER.info("Se tiene una cadena de largo: " + salida.length());
-            LOGGER.info("Termina la busqueda");
+            LOGGER.info("Termina la busqueda solo usuario");
         }
         return salida.toString();
     }
+    
+    public static String procesarSoloTR(Path path, String fieldTR, boolean intervaloHora){
+        StringBuilder salida = new StringBuilder();
+        if(null != fieldTR && !"".equals(fieldTR)){
+            fieldTR = fieldTR.trim().toUpperCase();
+            LineIterator it = null;
+            try {
+                it =  FileUtils.lineIterator(path.toFile(), ENCODING.name());
+                LOGGER.info("Buscando el TR: " + fieldTR);
+                while (it.hasNext()) {
+                    String line = it.nextLine();
+                    if(line.contains(SINTAXIS_TR)){
+                        String tr = getTRDeLinea(line);
+                        if(fieldTR.equalsIgnoreCase(tr)){
+                            boolean isRango = true;
+                            if(intervaloHora){
+//                                isRango = validarRangoDeTiempo(line);
+                            }
+                            if(isRango){
+                                if(line.contains("Alnova Request")){
+                                    salida.append("Entrada:").append(NEW_LINE);
+                                    salida.append(line).append(NEW_LINE).append(NEW_LINE);
+                                }
+                                else{
+                                    salida.append("Salida:").append(NEW_LINE);
+                                    salida.append(line).append(NEW_LINE).append(NEW_LINE).append(NEW_LINE).append(NEW_LINE);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (IOException ex) {
+            } finally {
+                if(null != it){
+                    LineIterator.closeQuietly(it);
+                }
+                LOGGER.info("Termina la busqueda solo tr");
+            }
+        }
+        return salida.toString();
+    }
+
+    public static String procesarSoloRuta(Path path, String fieldRuta, boolean intervaloHora){
+        boolean encontrado = false;
+        String hilo = "";
+        String rutaCompleta;
+        int lineaHiloDif = 0;
+        StringBuilder salida = new StringBuilder();
+        if(null != fieldRuta && !"".equals(fieldRuta) && (fieldRuta.contains("/") || fieldRuta.length() > 15 )){
+            fieldRuta = fieldRuta.trim();
+            LineIterator it = null;
+            try {
+                it = FileUtils.lineIterator(path.toFile(), ENCODING.name());
+                LOGGER.info("Buscando la ruta: " + fieldRuta);
+                while (it.hasNext()) {
+                    String line = it.nextLine();
+                    if(line.contains(SINTAXIS_RUTA)){
+                        rutaCompleta = getRutaDeLinea(line);
+                        if(null != rutaCompleta && rutaCompleta.contains(fieldRuta)){
+                            boolean isRango = true;
+                            if(intervaloHora){
+//                                isRango = validarRangoDeTiempo(line);
+                            }
+                            if(isRango){
+                                hilo = getHiloCompletoDeLinea(line);
+                                encontrado = true;
+                                lineaHiloDif = 0;
+                            }
+                        }
+                    }
+                    if(encontrado){
+                        String hiloLocal = getHiloCompletoDeLinea(line);
+                        if(hilo.equals(hiloLocal)){
+                            salida.append(line).append(NEW_LINE);
+                        }
+                        else{
+                            lineaHiloDif++;
+                        }
+                        if(lineaHiloDif >= LINEAS_HILO_DIF_MAX){
+                            encontrado = false;
+                        }
+                        if(isEndOperationLine(line, hilo)){//Fin de la operacion
+                            encontrado = false;
+                            salida.append(NEW_LINE).append(NEW_LINE);
+                        }
+                    }
+                }
+            } catch (IOException ex) {
+            } finally {
+                if(null != it){
+                    LineIterator.closeQuietly(it);
+                }
+                LOGGER.info("Termina la busqueda de solo path");
+            }
+        }
+        return salida.toString();
+    }
+    
+    public static String procesarSoloLibre(Path path, String fieldLibre, boolean intervaloHora){
+        StringBuilder salida = new StringBuilder();
+        if(null != fieldLibre && !"".equals(fieldLibre)){
+            LineIterator it = null;
+            try {
+                it = FileUtils.lineIterator(path.toFile(), ENCODING.name());
+                LOGGER.info("Buscando el texto: " + fieldLibre);
+                while (it.hasNext()) {
+                    String line = it.nextLine();
+                    if(line.contains(fieldLibre)){
+                        boolean isRango = true;
+                        if(intervaloHora){
+//                            isRango = validarRangoDeTiempo(line);
+                        }
+                        if(isRango){
+                            salida.append(line).append(NEW_LINE);
+                        }
+                    }
+                }
+            } catch (IOException ex) {
+            } finally {
+                if(null != it){
+                    LineIterator.closeQuietly(it);
+                }
+                LOGGER.info("Termina la busqueda de texto libre");
+            }
+        }
+        return salida.toString();
+    }
+    
+    public static String procesarUsuarioRuta(Path path, String usuarioField, String rutaField, boolean intervaloHora) {
+        StringBuilder salida = new StringBuilder();
+        String hilo = null;
+        usuarioField = usuarioField.toLowerCase();
+        boolean lineasSig = false;//Lineas despues de encontrar el response
+        int numLinSig = 0;
+        LOGGER.info("Iniciando la busqueda del usuario " + usuarioField + " y una ruta " + rutaField);
+        LineIterator it = null;
+        try {
+            it = FileUtils.lineIterator(path.toFile(), ENCODING.name());
+            Registro registro = new Registro();
+            while (it.hasNext()) {
+                String line = it.nextLine();
+                registro.add(line);
+                if (line.contains(SINTAXIS_USUARIO) && line.toLowerCase().contains(usuarioField)) {
+                    hilo = getHiloCompletoDeLinea(line);
+                    if(registro.buscarRutaHilo(rutaField, hilo)){
+                        boolean isRango = true;
+                        if(intervaloHora){
+//                            isRango = validarRangoDeTiempo(line);
+                        }
+                        if(isRango){
+                            if(escribirTextPaneMenosUnaLinea(salida, registro.getRegistro(), hilo, rutaField)){
+                                salida.append(line).append(NEW_LINE);
+                                lineasSig = true;
+                                numLinSig = 0;
+                            }
+                        }
+                    }
+                }
+                else if(lineasSig){
+                    if(numLinSig++ < MAX_LINEAS_POR_HILO){
+                        String hiloLinea = getHiloCompletoDeLinea(line);
+                        if(null != hilo && hilo.equals(hiloLinea)){
+                            salida.append(line).append(NEW_LINE);
+                        }
+                    }else{
+                        lineasSig = false;
+                    }
+                    if(isEndOperationLine(line, hilo)){//Fin de la operacion
+                        lineasSig = false;
+                    }
+                }
+            }
+        } catch (IOException ex) {
+        }
+        finally {
+            if(null != it){
+                LineIterator.closeQuietly(it);
+            }
+            LOGGER.info("Termina la busqueda usuario mas ruta");
+        }
+        return salida.toString();
+    }
+    
+    public static String procesarUsuarioTR(Path path, String usuarioField, String fieldTR, boolean intervaloHora){
+        StringBuilder salida = new StringBuilder();
+        String hilo = null;
+        boolean lineasSig = false;//Lineas despues de encontrar el response
+        Registro registro = new Registro();
+        usuarioField = usuarioField.toLowerCase();
+        LOGGER.info("Iniciando la busqueda del usuario: " + usuarioField + " ya tr: " + fieldTR);
+        LineIterator it = null;
+        try {
+            it = FileUtils.lineIterator(path.toFile(), ENCODING.name());
+            int numLinSig = 0;
+            while (it.hasNext()) {
+                String line = it.nextLine();
+                registro.add(line);//Se agrega la linea al registro
+                if(line.contains(SINTAXIS_TR)){
+                    String tr = getTRDeLinea(line);
+                    if(fieldTR.equalsIgnoreCase(tr)){
+                        hilo = getHiloCompletoDeLinea(line);
+                        if(registro.buscarUsuarioHilo(usuarioField, hilo)){
+                            boolean isRango = true;
+                            if(intervaloHora){
+//                                isRango = validarRangoDeTiempo(line);
+                            }
+                            if(isRango){
+                                LOGGER.info("Se encuentra la TR " + tr + " para el usuario: " + usuarioField + " -- " + ((line.contains("Alnova Request"))? "REQUEST": "RESPONSE"));
+                                if(line.contains("Alnova Request")){
+                                    escribirTextPaneMenosUnaLinea(salida, registro.getRegistro(), hilo);
+                                    salida.append(NEW_LINE).append("Entrada:").append(NEW_LINE);
+                                    salida.append(line).append(NEW_LINE);
+                                }
+                                else{
+                                    salida.append(NEW_LINE).append("Salida:").append(NEW_LINE);
+                                    salida.append(line).append(NEW_LINE).append(NEW_LINE);
+                                    lineasSig = true;
+                                    numLinSig = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+                else if(lineasSig){
+                    if(numLinSig++ < MAX_LINEAS_POR_HILO){
+                        String hiloLinea = getHiloCompletoDeLinea(line);
+                        if(null != hilo && hilo.equals(hiloLinea)){
+                            salida.append(line).append(NEW_LINE);
+                        }
+                    }else{
+                        lineasSig = false;
+                    }
+                    if(isEndOperationLine(line, hilo)){//Fin de la operacion
+                        lineasSig = false;
+                    }
+                }
+            }
+        } catch (IOException ex) {
+        } finally {
+            LineIterator.closeQuietly(it);
+            LOGGER.info("Termina la busqueda de usuario y tr.");
+//            insertaLeyenda();
+        }
+        return salida.toString();
+    }
+    
 }

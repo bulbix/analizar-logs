@@ -8,7 +8,7 @@ package com.baz.mx.beans;
 
 import static com.baz.mx.business.FileSearchOperations.SINTAXIS_RUTA;
 import static com.baz.mx.business.FileSearchOperations.SINTAXIS_USUARIO;
-import static com.baz.mx.business.Validaciones.getHiloDeLinea;
+import static com.baz.mx.business.Validaciones.getHiloCompletoDeLinea;
 import static com.baz.mx.business.Validaciones.getRutaDeLinea;
 import java.util.ArrayList;
 import javax.swing.text.AttributeSet;
@@ -41,11 +41,10 @@ public class Registro {
     }
     
     public boolean buscarRutaHilo(String ruta, String hilo){
-        System.out.println("Buscando hilo: " + hilo);
         for (int i = registro.size() -1 ; i > -1; i--) {
             String line = registro.get(i);
             if (line.matches(".*"+SINTAXIS_RUTA+".*") && line.contains(hilo)) {
-                String hiloLinea = getHiloDeLinea(line);
+                String hiloLinea = getHiloCompletoDeLinea(line);
                 if(hilo.equals(hiloLinea)){
                     if(getRutaDeLinea(line).contains(ruta)){
                         return true;
@@ -59,7 +58,8 @@ public class Registro {
     public boolean buscarUsuarioHilo(String usuario, String hilo){
         for (String line : registro) {
             if (line.contains(SINTAXIS_USUARIO) && line.toLowerCase().contains(usuario)) {
-                String hiloLinea = getHiloDeLinea(line);
+                System.out.println(line);
+                String hiloLinea = getHiloCompletoDeLinea(line);
                 if(hilo.equals(hiloLinea)){
                     return true;
                 }

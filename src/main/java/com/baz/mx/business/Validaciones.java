@@ -153,7 +153,7 @@ public class Validaciones {
         return false;
     }
     
-    public static void escribirTextPaneMenosUnaLinea(StringBuilder sb, ArrayList<String> lista, String hilo, String ... ruta){
+    public static boolean escribirTextPaneMenosUnaLinea(StringBuilder sb, ArrayList<String> lista, String hilo, String ... ruta){
         ArrayList<String> listaAux = new ArrayList<>();
         ArrayList<Integer> pos = new ArrayList<>();
         for (String line : lista) {
@@ -171,9 +171,8 @@ public class Validaciones {
         }
         if(ruta.length > 0){//Caso de busqueda de usuario con ruta
             if(!listaAux.get(pos.get(pos.size() - 1 )).matches(".*" + ruta[0]+ ".*")){
-//                return false;
+                return false;
             }
-//            insertInitFind();//Se inicia
         }
         int posAMostrar = pos.size() - 1 ;
         LOGGER.info("Se imprime la ruta inicial: " + posAMostrar  );
@@ -182,13 +181,9 @@ public class Validaciones {
             for (int i = pos.get(posAMostrar); i < listaAux.size() - 1; i++) {
                 String line = listaAux.get(i);
                 sb.append(line).append(NEW_LINE);
-//                try {
-//                    contenidoDoc.insertString(contenidoDoc.getLength(), line + "\n", style);
-//                } catch (BadLocationException ex) {
-//                    LOGGER.info("No se pudo escribir: " + ex.getMessage());
-//                }
             }
         }
+        return true;
     }
     
 }
