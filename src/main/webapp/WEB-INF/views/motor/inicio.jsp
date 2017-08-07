@@ -39,32 +39,34 @@
             </div>
             <!--End loading section-->
             <jsp:include page="parts/head.jsp" />
-            <section id="seleccion-informacion-general" class="container" ng-controller="InformacionGeneralController">
-                <div class="row" ng-switch on="archivoActual">
-                    <h4 ng-switch-when="null">No se ha seleccionado ningún archivo</h4>
-                    <h4 ng-switch-default="">Información general del arcivo seleccionado</h4>
-                </div>
-                <div class="row" ng-show="null !== archivoActual" class="ng-hide" ng-init="fnInitArchivo('${ArchivoFTP.nombre}', '${ArchivoFTP.tamano}', '${ArchivoFTP.fechaCreacion}')">
-                    <div class="col-md-12">
-                        <div class="row">
-                            <p class="col-sm-2">Nombre</p>
-                            <div class="col-sm-4">
-                                <label>{{archivoActual.nombre}}</label>
-                            </div>
-                            <p class="col-sm-2 control-label">Tamaño</p>
-                            <div class="col-sm-4">
-                                <label>{{archivoActual.tamano}}</label>
+            <section id="seleccion-informacion-general" class="container-fluid" ng-controller="InformacionGeneralController">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row" ng-switch on="archivoActual">
+                            <div class="col-sm-12">
+                                <h3 ng-switch-when="null">No se ha seleccionado ningún archivo</h3>
                             </div>
                         </div>
-                        <div class="row">
-                            <p class="col-sm-2 control-label">Fecha de creación</p>
-                            <div class="col-sm-10">
-                                <label>{{archivoActual.fechaCreacion}}</label>
+                        <div class="row" ng-show="null !== archivoActual" class="ng-hide" ng-init="fnInitArchivo('${ArchivoFTP.nombre}', '${ArchivoFTP.tamano}', '${ArchivoFTP.fechaCreacion}')">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-sm-1">Nombre</div>
+                                    <div class="col-sm-3">
+                                        <label>{{archivoActual.nombre}}</label>
+                                    </div>
+                                    <div class="col-sm-1 control-label">Tamaño</div>
+                                    <div class="col-sm-2">
+                                        <label>{{archivoActual.tamano}}</label>
+                                    </div>
+                                    <div class="col-sm-2 control-label">Fecha de creación</div>
+                                    <div class="col-sm-3">
+                                        <label>{{archivoActual.fechaCreacion}}</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <!-- Modal seleccion de archivo -->
                 <div class="modal fade" id="modalSeleccionArchivo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                     <div class="modal-dialog modal-lg" role="document">
@@ -95,6 +97,39 @@
                     </div>
                 </div>
                 
+                <!-- Modal archivos ftp-->
+                <div class="modal fade" id="modalArchivosFTP" tabindex="-1" role="dialog" aria-labelledby="myModalLabelFTP">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabelFTP">Archivos de servidor FTP</h4>
+                                <select class="form-control">
+                                    <option ng-repeat="item in servidoresFTP" ng-click="obtenerArchivosFTP(item.ip)">{{item.ip}}</option>
+                                </select>
+                            </div>
+                            <div class="modal-body" >
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr><th>Nombre</th><th>Fecha de creación</th><th>Tamaño</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="row in archivosFTP">
+                                            <th scope="row"><span ng-bind="row.nombre"></span></th>
+                                            <td><span ng-bind="row.fechaCreacion"></span></td>
+                                            <td><span ng-bind="row.tamano"></span></td>
+                                            <td><button type="button" class="btn btn-primary btn-sm" ng-click="fnEstablecerArchivo(row)">Actualizar</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Modal para visualización de json con formato-->
                 <div class="modal fade" id="modalJSONFormato" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                     <div class="modal-dialog modal-lg" role="document">
@@ -113,18 +148,17 @@
                     </div>
                 </div>
             </section>
-
             <section id="seleccion-busqueda" class="container" ng-controller="BusquedasController">
                 <div class="panel panel-primary">
                     <div class="panel-heading">Formulario de búsqueda</div>
-                    <div  class="panel-body" style="min-height: 250px; max-height: 500px; overflow-y: auto;overflow-x: hidden;">
-                        <jsp:include page="parts/partUsuarios.jsp" />   
-                        <jsp:include page="parts/partGeneral.jsp" />   
+                    <div  class="panel-body" style="min-height: 200px; max-height: 500px; overflow-y: auto;overflow-x: hidden;">
+                        <jsp:include page="parts/partUsuarios.jsp" />
+                        <jsp:include page="parts/partGeneral.jsp" />
                     </div>
                 </div>
             </section>
 
-            <section id="seleccion-resultado" class="container">
+            <section id="seleccion-resultado" class="container-fluid">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Resultado de la búsqueda</h3>

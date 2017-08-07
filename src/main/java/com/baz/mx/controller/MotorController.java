@@ -8,10 +8,13 @@ package com.baz.mx.controller;
 import com.baz.mx.ArchivoNoSeleccionadoException;
 import com.baz.mx.beans.ArchivoFTP;
 import com.baz.mx.beans.InformacionSession;
+import com.baz.mx.business.FTPUtils;
 import com.baz.mx.business.FileSearchOperations;
 import com.baz.mx.business.ListarArchivos;
 import com.baz.mx.dto.BusquedaGeneralDTO;
 import com.baz.mx.dto.UsuarioDTO;
+import com.baz.mx.request.BusquedaLineaRequest;
+import com.baz.mx.request.ObtenerArchivosFTPRequest;
 import com.baz.mx.response.BusquedaGeneralResponse;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -51,6 +54,9 @@ public class MotorController {
     
     @Autowired
     private InformacionSession sessionData;
+    
+    @Autowired
+    private FTPUtils ftpUtils;
     
     @GetMapping(path = {"/", ""})
     public String inicio(HttpServletRequest request, HttpServletResponse response, HttpSession session, ModelMap model){
@@ -117,33 +123,53 @@ public class MotorController {
         String respuesta = null;
         //Solo usuario
         if (infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()) {//Solo usuario
-            respuesta = FileSearchOperations.procesarSoloUsuario(Paths.get(path), infoBusqueda.getUsuario().getTexto(), false);
+            respuesta = FileSearchOperations.procesarSoloUsuario(Paths.get(path), infoBusqueda.getUsuario().getTexto(), infoBusqueda.getRangoTiempo().isVisible(), infoBusqueda.getRangoTiempo().isVisible() ? infoBusqueda.getRangoTiempo().getTexto().split("-"): null);
         }
         //solo tr
         else if(!infoBusqueda.getUsuario().isVisible() && infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
-            respuesta = FileSearchOperations.procesarSoloTR(Paths.get(path), infoBusqueda.getTrAlnova().getTexto(), false);
+            respuesta = FileSearchOperations.procesarSoloTR(Paths.get(path), infoBusqueda.getTrAlnova().getTexto(), infoBusqueda.getRangoTiempo().isVisible(), infoBusqueda.getRangoTiempo().isVisible() ? infoBusqueda.getRangoTiempo().getTexto().split("-"): null);
         }
         //solo ruta
         else if(!infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && infoBusqueda.getRuta().isVisible()){
-            respuesta = FileSearchOperations.procesarSoloRuta(Paths.get(path), infoBusqueda.getRuta().getTexto(), false);
+            respuesta = FileSearchOperations.procesarSoloRuta(Paths.get(path), infoBusqueda.getRuta().getTexto(), infoBusqueda.getRangoTiempo().isVisible(), infoBusqueda.getRangoTiempo().isVisible() ? infoBusqueda.getRangoTiempo().getTexto().split("-"): null);
         }
         //solo libre
         else if(!infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
             LOGGER.info("Se procesa solo libre.");
-            respuesta = FileSearchOperations.procesarSoloLibre(Paths.get(path), infoBusqueda.getTextoLibre().getTexto(), false);
+            respuesta = FileSearchOperations.procesarSoloLibre(Paths.get(path), infoBusqueda.getTextoLibre().getTexto(), infoBusqueda.getRangoTiempo().isVisible(), infoBusqueda.getRangoTiempo().isVisible() ? infoBusqueda.getRangoTiempo().getTexto().split("-"): null);
         }
         //usuario y tr
         else if(infoBusqueda.getUsuario().isVisible() && infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
             LOGGER.info("Se procesa solo usuario y tr.");
-            respuesta = FileSearchOperations.procesarUsuarioTR(Paths.get(path), infoBusqueda.getUsuario().getTexto(), infoBusqueda.getTrAlnova().getTexto(), false);
+            respuesta = FileSearchOperations.procesarUsuarioTR(Paths.get(path), infoBusqueda.getUsuario().getTexto(), infoBusqueda.getTrAlnova().getTexto(), infoBusqueda.getRangoTiempo().isVisible(), infoBusqueda.getRangoTiempo().isVisible() ? infoBusqueda.getRangoTiempo().getTexto().split("-"): null);
         }
         //usuario y ruta
         else if(infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && infoBusqueda.getRuta().isVisible()){
             LOGGER.info("Se procesa solo usuario y ruta.");
-            respuesta = FileSearchOperations.procesarUsuarioRuta(Paths.get(path), infoBusqueda.getUsuario().getTexto(), infoBusqueda.getRuta().getTexto(), false);
+            respuesta = FileSearchOperations.procesarUsuarioRuta(Paths.get(path), infoBusqueda.getUsuario().getTexto(), infoBusqueda.getRuta().getTexto(), infoBusqueda.getRangoTiempo().isVisible(), infoBusqueda.getRangoTiempo().isVisible() ? infoBusqueda.getRangoTiempo().getTexto().split("-"): null);
         }
         return new BusquedaGeneralResponse(respuesta);
     }
+    
+    @PostMapping(value= "busqueda/linea", consumes = "application/json", produces = {"application/json"})
+    @ResponseBody
+    public BusquedaGeneralResponse getLineaInformation(@RequestBody BusquedaLineaRequest infoBusqueda) throws ArchivoNoSeleccionadoException{
+        LOGGER.info("json recibido: " + infoBusqueda);
+        String path = sessionData.getRutaArchivoId(sessionData.getIdArchivo());
+        LOGGER.info("path a consultar: " + path);
+        validaPathSeleccionado(path);
+        return new BusquedaGeneralResponse(FileSearchOperations.procesarLibreDetalle(Paths.get(path), infoBusqueda.getLinea()));
+    }
+    
+    @PostMapping(value= "obtener/archivos/ftp", consumes = "application/json", produces = {"application/json"})
+    @ResponseBody
+    public BusquedaGeneralResponse getArchivosFTP(@RequestBody ObtenerArchivosFTPRequest infoFTP) throws ArchivoNoSeleccionadoException{
+        LOGGER.info("json recibido: " + infoFTP);
+        ftpUtils.obtenerArchivosBD_JVC(infoFTP.getIp(), infoFTP.isCore());
+//        return new BusquedaGeneralResponse(FileSearchOperations.procesarLibreDetalle(Paths.get(path), infoBusqueda.getLinea()));
+return null;
+    }
+    
     
     private void validaPathSeleccionado(String path) throws ArchivoNoSeleccionadoException {
         if (null == path) {

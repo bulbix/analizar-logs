@@ -1,6 +1,8 @@
 //Variables globales
 
-
+var busquedaLinea = null;
+var horaInicio = "09:00 AM";
+var horaFin = "11:00 AM";
 
 var myAngularApp = angular.module('myApp', ['ngCookies', 'ui.bootstrap']);//'ngAnimate', 'ngSanitize', 'ui.bootstrap'
 
@@ -26,6 +28,8 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
     //Descarga de los archivos en disco
     $scope.archivosHD = [];
     
+    $scope.archivosFTP = [];
+    $scope.servidoresFTP = [ {ip: "10.51.53.164"}, {ip: "10.51.53.115"}];
     $('#modalSeleccionArchivo').on('show.bs.modal', function (e) {
         $http({withCredentials: true,
             method: 'POST',
@@ -58,6 +62,19 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
             console.error('Error occurred:', response.status, response.data);
         });
     };
+    
+    $scope.obtenerArchivosFTP = function(ip) {
+        console.log('Obteniendo archivos de servidor ftp: ' + ip);
+        $http({withCredentials: true,
+            method: 'POST',
+            url: base + '/listar/archivos'})
+            .then(function (response){
+                $scope.archivosHD = response.data;
+        }).catch(function(response) {
+            console.error('Error occurred:', response.status, response.data);
+        });
+    };
+    
 });
 
 //Sección de búsquedas
@@ -89,10 +106,6 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
             data: $scope.usuario
             })
             .then(function (response){
-                $scope.usuario.nombreUsuario = '';
-                $scope.usuario.nombre = '';
-                $scope.usuario.apellido = '';
-                $scope.usuario.icu = '';
                 console.log("Se obtienen la informacion del usuario: ");
                 console.log(response);
                 if(null !== response.data && response.data !== ''){
@@ -164,7 +177,17 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
         emptyResult();
         loading(true);
         if($scope.checkboxGeneralModel.rangoTiempo.visible){
-            
+            var partes = horaInicio.split(":");
+            horaInicio = (horaInicio.endsWith("PM") ? (parseInt(partes[0]) + 12) :partes[0])  + ":" + partes[1].replace(/ [P|A]M/g, "") + ":00";
+            partes = horaFin.split(":");
+            horaFin = (horaFin.endsWith("PM") ? (parseInt(partes[0]) + 12) :partes[0])  + ":" + partes[1].replace(/ [P|A]M/g, "") + ":00";
+            if(horaInicio <= horaFin){
+                $scope.checkboxGeneralModel.rangoTiempo.texto = horaInicio + "-" + horaFin;
+            }
+            else{
+                alert('Por favor verifique el rango de tiempo.');
+                return;
+            }
         }
         $http({withCredentials: true,
             method: 'POST',
@@ -173,7 +196,6 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
             })
             .then(function (response){
                 console.log("Se obtienen la informacion de la búsqueda: ");
-                console.log(response);
                 if(null !== response.data && response.data !== '' && response.data.informacion !== null && response.data.informacion !== ""){
                     escribirDataResult(syntaxHighlightText(response.data.informacion));
                 }
@@ -187,6 +209,33 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
             loading(false);
         });
     };
+    
+    $scope.submitBusquedaLinea = function(linea){
+        console.log('Inicia la busqueda de linea: ' + linea);
+        emptyResult();
+        loading(true);
+        $http({withCredentials: true,
+            method: 'POST',
+            url: base + '/busqueda/linea',
+            data: JSON.stringify({'linea': linea.replace(/\r\n|\r|\n/g, "")})
+            })
+            .then(function (response){
+                console.log("Se obtienen la informacion de la búsqueda: ");
+                if(null !== response.data && response.data !== '' && response.data.informacion !== null && response.data.informacion !== ""){
+                    escribirDataResult(syntaxHighlightText(response.data.informacion));
+                }
+                else{
+                    console.log("No se encontraron datos de la búsqueda.");
+                    escribirNoResult();
+                }
+        }).catch(function(response) {
+            validarErrorHTTP(response);
+        }).finally(function() {
+            loading(false);
+        });
+    };
+    
+    busquedaLinea = $scope.submitBusquedaLinea;
     
 });
 
@@ -217,34 +266,30 @@ var syntaxHighlightJSON = function (json) {
 
 var syntaxHighlightText = function(data){
     //regex de rutas
+    var regexFecha = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{1,3}/g;
     var regexPath = /PathInterceptor:\d+ - \/[\/\w+]+/g;// /api/...
     var regexAlias = /AspectoWalletController:\d+ - Alias: .+\s\s/g;// /api/...
     var regexResponse = /ObjEncriptacionSeguridad:\d+ - doObjToStrJSON:\{\".*codigoOperacion.*\}\s/g;
     var entradaAlnova = "Entrada:";
     var salidaAlnova = "Salida:";
-    
+    //Se agrega el estilo de linea
     data = "<span class= 'line-number'>" + data.replace(/\n/g, "</span>\n" + "<span class= 'line-number'>") + "</span>";
+    //Se agrega el link para búsqueda de detalle de una línea
+    data = data.replace(regexFecha, function(match){
+        return "<a class='glyphicon-line-number'>" + match + "</a>";
+    });
     //Se agrega la clase de todos los path's
-    var res = data.match(regexPath);
-    if(null !== res){
-        for (i = 0; i < res.length; i++) { 
-            data = data.replace(res[i], "<span class='string-path'>"+res[i]+"</span>");
-        }
-    }
+    data = data.replace(regexPath, function(match){
+        return "<span class='string-path'>" + match + "</span>";
+    });
     //Se agregan las clases de los alias
-    res = data.match(regexAlias);
-    if(null !== res){
-        for (i = 0; i < res.length; i++) { 
-            data = data.replace(res[i], "<span class='string-alias'>"+res[i]+"</span>");
-        }
-    }
+    data = data.replace(regexAlias, function(match){
+        return "<span class='string-alias'>" + match + "</span>";
+    });
     //Se agregan las clases de los las respuestas
-    res = data.match(regexResponse);
-    if(null !== res){
-        for (i = 0; i < res.length; i++) { 
-            data = data.replace(res[i], "<span class='string-respuesta'>"+res[i]+"</span>");
-        }
-    }
+    data = data.replace(regexResponse, function(match){
+        return "<span class='string-respuesta'>" + match + "</span>";
+    });
     //Se agregan las clases para las tr
     data = data.split(entradaAlnova).join("<span class='string'>"+ entradaAlnova +"</span>");
     data = data.split(salidaAlnova).join("<span class='string'>"+ salidaAlnova +"</span>");
@@ -314,6 +359,8 @@ var mostrarFormBusqueda = function(elem){
 //jQuery init
 $(function(){
     
+    $('#modalArchivosFTP').modal('show');
+    
     $("#panel-fullscreen").click(function (e) {
         e.preventDefault();
         
@@ -335,9 +382,11 @@ $(function(){
     //Div de rango de tiempo
     $(".divHoraInicio").on('change.bfhtimepicker', function(){
         console.log("Hora: "+$(this).find("input").val());
+        horaInicio = $(this).find("input").val();
     });
     $(".divHoraFin").on('change.bfhtimepicker', function(){
         console.log("Hora: "+$(this).find("input").val());
+        horaFin = $(this).find("input").val();
     });
     
     $('.has-clear input[type="text"]').on('input propertychange', function () {
@@ -375,7 +424,7 @@ $(function(){
     });
     
     //Configuración del popup menu
-    var menu3 = new BootstrapMenu('.string-respuesta', {
+    var menu1 = new BootstrapMenu('.string-respuesta', {
         menuEvent: 'hover',
         menuSource: 'element',
         menuPosition: 'belowRight', // default value, can be omitted
@@ -392,10 +441,30 @@ $(function(){
             return false;
         },
         actions: [{
-            name: 'Ver json',
+            name: 'Visualizar json',
                 onClick: function(data) {
-                    toastr.info("Se muestra el resultado en formato json");
                     $('#modalJSONFormato').modal('show');
+                }
+            }
+        ]
+    });
+    
+    var menu2 = new BootstrapMenu('.glyphicon-line-number', {
+        menuEvent: 'right-click',
+        menuSource: 'element',
+        menuPosition: 'aboveRight', // default value, can be omitted
+        fetchElementData: function($rowElem) {
+            //Texto de la línea completa
+            var padreText = $($rowElem).parent().text();
+            return padreText;
+        },
+        actions: [{
+            name: 'Ver detalle de línea',
+                onClick: function(data) {
+                    //alert('Epa!!!: ' + data);
+                    //angular.element(document.getElementsByClassName('glyphicon-line-number')).scope().submitBusquedaLinea(data);
+                    busquedaLinea(data);
+                    //$('#modalJSONFormato').modal('show');
                 }
             }
         ]

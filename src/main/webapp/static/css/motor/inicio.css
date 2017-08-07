@@ -44,6 +44,12 @@
   cursor: pointer;
 }
 
+/**Información general*/
+
+#seleccion-informacion-general label{
+    margin-bottom: 0px;
+}
+
 /*Contador de lineas para json*/
 pre#textareaResultado {
     height: 260px; 
@@ -69,6 +75,11 @@ pre#preJSONResultado {
 span.line-number {
     display: block;
     line-height: 1.5rem;
+}
+
+a.glyphicon-line-number{
+    color: #337ab7;
+    cursor: pointer !important;
 }
 
 span.line-number:before {

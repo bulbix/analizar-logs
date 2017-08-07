@@ -24,6 +24,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Archivo <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="#" data-target="#modalSeleccionArchivo" data-toggle="modal">Archivo a procesar</a></li>
+                        <li><a href="#" data-target="#modalArchivosFTP" data-toggle="modal">Gestión de archivos</a></li>
                         <li><a href="#">Descarga de logs</a></li>
                     </ul>
                 </li>
