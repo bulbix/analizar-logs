@@ -12,6 +12,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -30,13 +31,13 @@ public class FTPUtils {
     private static final Logger LOGGER = Logger.getLogger(FTPUtils.class);
     private static final String DATE_FORMATTER = "dd/MM/yyyy hh:mm:ss a";
     
-    private ArrayList<ArchivoFTP> archivosFTP;
     private FTPClient ftpClient;
 
     public FTPUtils() {
     }
 
-    public void obtenerArchivosBD_JVC(String serverActivo, boolean isBD) {
+    public ArrayList<ArchivoFTP> obtenerArchivosBD_JVC(String serverActivo, boolean isBD) {
+        ArrayList<ArchivoFTP> archivosFTP = new ArrayList<>();
         ftpClient = new FTPClient();
         try {
             ftpClient.connect(serverActivo, Constantes.FTP_PORT);
@@ -57,7 +58,7 @@ public class FTPUtils {
                     details += "\t\t" + formatFileSize(file.getSize());
                     details += "\t\t" + dateFormater.format(file.getTimestamp().getTime());
                     LOGGER.info(details);
-//                    addTableData(file.getName(), dateFormater.format(file.getTimestamp().getTime()), formatFileSize(file.getSize()), file.getSize());
+                    archivosFTP.add(new ArchivoFTP(0, file.getName(), "", dateFormater.format(file.getTimestamp().getTime()), formatFileSize(file.getSize()), file.getSize()));
                 }
             }
         } catch (IOException ex) {
@@ -71,10 +72,12 @@ public class FTPUtils {
             } catch (IOException ex) {
             }
         }
+        Collections.sort(archivosFTP);
+        return archivosFTP;
     }
     
     public static String formatFileSize(long size) {
-        String hrSize = null;
+        String hrSize;
 
         double b = size;
         double k = size / 1024.0;

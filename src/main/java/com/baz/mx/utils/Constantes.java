@@ -23,6 +23,8 @@ public class Constantes {
     public static String FTP_PASS;
     public static String FTP_BAZ;
     public static String FTP_JVC;
+    
+    public static String RUTA_LOGS;
            
     @Autowired
     public Constantes(@Value("${ftp.server.64}") String FTP_IP_64,
@@ -31,7 +33,8 @@ public class Constantes {
             @Value("${ftp.user}") String FTP_USER,
             @Value("${ftp.pass}") String FTP_PASS,
             @Value("${ftp.path.bancadigital}") String FTP_BAZ,
-            @Value("${ftp.path.jvc }") String FTP_JVC) {
+            @Value("${ftp.path.jvc}") String FTP_JVC,
+            @Value("${ruta.local.logs}") String RUTA_LOGS) {
         this.FTP_IP_64 = FTP_IP_64;
         this.FTP_IP_115 = FTP_IP_115;
         this.FTP_PORT = Integer.parseInt(FTP_PORT);
@@ -39,5 +42,6 @@ public class Constantes {
         this.FTP_PASS = FTP_PASS;
         this.FTP_BAZ = FTP_BAZ;
         this.FTP_JVC = FTP_JVC;
+        this.RUTA_LOGS = RUTA_LOGS;
     }
 }

@@ -7,23 +7,23 @@ package com.baz.mx.controller;
 
 import com.baz.mx.ArchivoNoSeleccionadoException;
 import com.baz.mx.beans.ArchivoFTP;
+import com.baz.mx.beans.ArchivosEnDescargaFTP;
 import com.baz.mx.beans.InformacionSession;
+import com.baz.mx.business.DescargarArchivoFTP;
 import com.baz.mx.business.FTPUtils;
 import com.baz.mx.business.FileSearchOperations;
 import com.baz.mx.business.ListarArchivos;
 import com.baz.mx.dto.BusquedaGeneralDTO;
 import com.baz.mx.dto.UsuarioDTO;
+import com.baz.mx.request.ActualizarArchivoFTPRequest;
 import com.baz.mx.request.BusquedaLineaRequest;
 import com.baz.mx.request.ObtenerArchivosFTPRequest;
 import com.baz.mx.response.BusquedaGeneralResponse;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -58,11 +58,16 @@ public class MotorController {
     @Autowired
     private FTPUtils ftpUtils;
     
+    @Autowired
+    private DescargarArchivoFTP descargarFTP;
+    
+    @Autowired
+    private ArchivosEnDescargaFTP descargnadoftp;
+    
     @GetMapping(path = {"/", ""})
     public String inicio(HttpServletRequest request, HttpServletResponse response, HttpSession session, ModelMap model){
         LOGGER.info("-----------------------------------------");
         LOGGER.info("Id de session obj session: " + session.getId());
-        LOGGER.info("Id del obj data: " + sessionData);
         model.addAttribute("ArchivoFTP", sessionData.getArchivoId(sessionData.getIdArchivo()));
         return "motor/inicio";
     }
@@ -72,11 +77,6 @@ public class MotorController {
     public List<ArchivoFTP> postAllFiles(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
         LOGGER.info("-----------------------------------------");
         LOGGER.info("Id de session obj session: " + session.getId());
-        LOGGER.info("Id del obj data: " + sessionData);
-        LOGGER.info("Lista de cookies post");
-        for (Cookie c : request.getCookies()) {
-            LOGGER.info(c.getValue());
-        }
         List<ArchivoFTP> lista = archivos.obtenerLista();
         sessionData.setLista(lista);
         return lista;
@@ -163,11 +163,24 @@ public class MotorController {
     
     @PostMapping(value= "obtener/archivos/ftp", consumes = "application/json", produces = {"application/json"})
     @ResponseBody
-    public BusquedaGeneralResponse getArchivosFTP(@RequestBody ObtenerArchivosFTPRequest infoFTP) throws ArchivoNoSeleccionadoException{
+    public ArrayList<ArchivoFTP> getArchivosFTP(@RequestBody ObtenerArchivosFTPRequest infoFTP) throws ArchivoNoSeleccionadoException{
         LOGGER.info("json recibido: " + infoFTP);
-        ftpUtils.obtenerArchivosBD_JVC(infoFTP.getIp(), infoFTP.isCore());
-//        return new BusquedaGeneralResponse(FileSearchOperations.procesarLibreDetalle(Paths.get(path), infoBusqueda.getLinea()));
-return null;
+        return ftpUtils.obtenerArchivosBD_JVC(infoFTP.getIp(), infoFTP.isCore());
+    }
+    
+    @PostMapping(value= "/actualizar/archivo/ftp", consumes = "application/json", produces = {"application/json"})
+    @ResponseBody
+    public Map<String, Boolean> actualizaArchivoFTP(@RequestBody ActualizarArchivoFTPRequest infoFTP) throws ArchivoNoSeleccionadoException{
+        LOGGER.info("json recibido: " + infoFTP);
+        boolean respuesta = descargarFTP.descargarArchivoFTP(infoFTP.getIp(), infoFTP.isCore(), infoFTP.getArchivo().getNombre(), infoFTP.getArchivo().getTamanoKB());
+        return Collections.singletonMap("success", respuesta);
+    }
+    
+    @GetMapping(value= "/actualizar/archivo/porcentajes", produces = {"application/json"})
+    @ResponseBody
+    public ArchivosEnDescargaFTP getPorcentajesArchivoFTP(){
+        LOGGER.info("Solicitando datos: " + descargnadoftp);
+        return descargnadoftp;
     }
     
     

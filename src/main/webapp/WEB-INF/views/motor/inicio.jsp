@@ -104,12 +104,27 @@
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                 <h4 class="modal-title" id="myModalLabelFTP">Archivos de servidor FTP</h4>
-                                <select class="form-control">
-                                    <option ng-repeat="item in servidoresFTP" ng-click="obtenerArchivosFTP(item.ip)">{{item.ip}}</option>
-                                </select>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <select class="form-control">
+                                            <option ng-repeat="item in servidoresFTP" ng-click="obtenerArchivosFTP(item.ip)">{{item.ip}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="btn-group" data-toggle="buttons">
+                                            <label class="btn btn-default active" ng-click="changeToCore(true)">
+                                                <input type="radio" name="options" autocomplete="off"> Core
+                                            </label>
+                                            <label class="btn btn-default" ng-click="changeToCore(false)">
+                                                <input type="radio" name="options" autocomplete="off"> JVC
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="modal-body" >
-                                <table class="table table-bordered">
+                                <label ng-show="!archivosFTP.length">No se encontraron archivos a mostrar</label>
+                                <table ng-show="archivosFTP.length > 0" class="table table-bordered">
                                     <thead>
                                         <tr><th>Nombre</th><th>Fecha de creación</th><th>Tamaño</th></tr>
                                     </thead>
@@ -118,7 +133,7 @@
                                             <th scope="row"><span ng-bind="row.nombre"></span></th>
                                             <td><span ng-bind="row.fechaCreacion"></span></td>
                                             <td><span ng-bind="row.tamano"></span></td>
-                                            <td><button type="button" class="btn btn-primary btn-sm" ng-click="fnEstablecerArchivo(row)">Actualizar</button></td>
+                                            <td><button type="button" class="btn btn-primary btn-sm" ng-click="actualizarArchivoDesdeFTP(row)">Actualizar log</button></td>
                                         </tr>
                                     </tbody>
                                 </table>

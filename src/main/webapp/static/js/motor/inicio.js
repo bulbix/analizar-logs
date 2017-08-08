@@ -29,8 +29,12 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
     $scope.archivosHD = [];
     
     $scope.archivosFTP = [];
-    $scope.servidoresFTP = [ {ip: "10.51.53.164"}, {ip: "10.51.53.115"}];
+    $scope.servidoresFTP = [ {ip: "10.51.53.64"}, {ip: "10.51.53.115"}];
+    $scope.servidoresFTPCore = true;
+    $scope.servidoresFTPIP = $scope.servidoresFTP[0].ip;
+    console.log($scope.servidoresFTPIP);
     $('#modalSeleccionArchivo').on('show.bs.modal', function (e) {
+        loading(true);
         $http({withCredentials: true,
             method: 'POST',
             url: base + '/listar/archivos'})
@@ -38,11 +42,14 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
                 $scope.archivosHD = response.data;
         }).catch(function(response) {
             console.error('Error occurred:', response.status, response.data);
+        }).finally(function() {
+            loading(false);
         });
     });
     
     $scope.fnEstablecerArchivo = function(data){
         console.log(data);
+        loading(true);
         $http({withCredentials: true,
             method: 'POST',
             url: base + '/establecer/archivo',
@@ -60,18 +67,49 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
                 }
         }).catch(function(response) {
             console.error('Error occurred:', response.status, response.data);
+        }).finally(function() {
+            loading(false);
         });
     };
     
+    $scope.changeToCore = function(option){
+        $scope.servidoresFTPCore = option;
+        $scope.obtenerArchivosFTP($scope.servidoresFTPIP);
+    };
+    
     $scope.obtenerArchivosFTP = function(ip) {
-        console.log('Obteniendo archivos de servidor ftp: ' + ip);
+        $scope.servidoresFTPIP = ip;
+        console.log('Obteniendo archivos de servidor ftp: ' + $scope.servidoresFTPIP);
+        loading(true);
         $http({withCredentials: true,
             method: 'POST',
-            url: base + '/listar/archivos'})
+            url: base + '/obtener/archivos/ftp',
+            data: JSON.stringify({ip: $scope.servidoresFTPIP, core: $scope.servidoresFTPCore})
+            })
             .then(function (response){
-                $scope.archivosHD = response.data;
+                $scope.archivosFTP = response.data;
+                console.log(response.data);
         }).catch(function(response) {
             console.error('Error occurred:', response.status, response.data);
+        }).finally(function() {
+            loading(false);
+        });
+    };
+    
+    $scope.actualizarArchivoDesdeFTP = function(row){
+        console.log('Actualizando archivo desde servidor ftp: ' + row);
+        loading(true);
+        $http({withCredentials: true,
+            method: 'POST',
+            url: base + '/actualizar/archivo/ftp',
+            data: JSON.stringify({ip: $scope.servidoresFTPIP, core: $scope.servidoresFTPCore, archivo: row})
+            })
+        .then(function (response){
+            console.log(response.data);
+        }).catch(function(response) {
+            console.error('Error occurred:', response.status, response.data);
+        }).finally(function() {
+            loading(false);
         });
     };
     

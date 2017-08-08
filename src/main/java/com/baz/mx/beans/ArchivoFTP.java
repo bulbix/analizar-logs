@@ -25,10 +25,18 @@ public class ArchivoFTP implements Comparable<ArchivoFTP>{
     private String rutaCompleta;
     private String fechaCreacion;
     private String tamano;
-    @JsonIgnore
     private long tamanoKB;
 
     public ArchivoFTP() {
+    }
+
+    public ArchivoFTP(int id, String nombre, String rutaCompleta, String fechaCreacion, String tamano, long tamanoKB) {
+        this.id = id;
+        this.nombre = nombre;
+        this.rutaCompleta = rutaCompleta;
+        this.fechaCreacion = fechaCreacion;
+        this.tamano = tamano;
+        this.tamanoKB = tamanoKB;
     }
 
     public int getId() {
