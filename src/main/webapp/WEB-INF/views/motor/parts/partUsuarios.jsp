@@ -31,7 +31,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-8 col-sm-offset-2">
+                        <div class="col-sm-10 col-sm-offset-1">
                             <!--Busqueda por nombre de usuario-->
                             <div class="col-sm-6" ng-show="usuario.tipo === 'usuario'">
                                 <div class="form-group has-clear">
@@ -40,7 +40,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-8 col-sm-offset-2">
+                        <div class="col-sm-10 col-sm-offset-1">
                             <!--Busqueda por nombre completo-->
                             <div class="col-sm-6" ng-show="usuario.tipo === 'nombre'">
                                 <div class="form-group has-clear">
@@ -55,7 +55,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-8 col-sm-offset-2">
+                        <div class="col-sm-10 col-sm-offset-1">
                             <!--Busqueda por ICU-->
                             <div class="col-sm-6" ng-show="usuario.tipo === 'icu'">
                                 <div class="form-group has-clear">
@@ -66,7 +66,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-8 col-sm-offset-2">
+                        <div class="col-md-10 col-sm-offset-1">
                             <input type="submit" value="Buscar" class="btn btn-primary" /> 
                         </div>
                     </div>

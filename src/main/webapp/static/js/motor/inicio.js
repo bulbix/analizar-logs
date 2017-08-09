@@ -4,8 +4,57 @@ var busquedaLinea = null;
 var horaInicio = "09:00 AM";
 var horaFin = "11:00 AM";
 var isShowDownloadModal = false;//para recargar las graficas de descarga de archivos de ftp
+Dropzone.autoDiscover = false;
 
-var myAngularApp = angular.module('myApp', ['ngCookies', 'ui.bootstrap']);//'ngAnimate', 'ngSanitize', 'ui.bootstrap'
+//'ngAnimate', 'ngSanitize', 'ui.bootstrap'
+var myAngularApp = angular.module('myApp', ['ngCookies', 'ui.bootstrap']);
+
+//.directive('dropzone', function() {
+//    return {
+//        restrict: 'C',
+//        link: function(scope, element, attrs) {
+//
+//            var config = {
+//                url: 'http://localhost:8080/motor/upload',
+//                maxFilesize: 1000,
+//                paramName: "uploadfile",
+//                maxThumbnailFilesize: 10,
+//                parallelUploads: 1,
+//                autoProcessQueue: false
+//            };
+//
+//            var eventHandlers = {
+//                'addedfile': function(file) {
+//                    scope.file = file;
+//                    if (this.files[1]!==null) {
+//                        this.removeFile(this.files[0]);
+//                    }
+//                    scope.$apply(function() {
+//                        scope.fileAdded = true;
+//                    });
+//                },
+//                'success': function (file, response) {
+//                }
+//
+//            };
+//
+//            dropzone = new Dropzone(element[0], config);
+//
+//            angular.forEach(eventHandlers, function(handler, event) {
+//                dropzone.on(event, handler);
+//            });
+//
+//            scope.processDropzone = function() {
+//                dropzone.processQueue();
+//            };
+//
+//            scope.resetDropzone = function() {
+//                dropzone.removeAllFiles();
+//            };
+//        }
+//    };
+//});
+//
 
 //Información general
 myAngularApp.controller('InformacionGeneralController', function ($scope, $http, $window, $timeout) {
@@ -215,6 +264,19 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
             alert("Favor de ingresar una cadena.");
         }
     };
+    
+//    $scope.partialDownloadLink = 'http://localhost:8080/download?filename=';
+//    $scope.filename = '';
+//
+//    $scope.uploadFile = function() {
+//        $scope.processDropzone();
+//    };
+//
+//    $scope.reset = function() {
+//        $scope.resetDropzone();
+//    };
+                    
+                    
 });
 
 //Sección de búsquedas
@@ -499,7 +561,7 @@ var mostrarFormBusqueda = function(elem){
 //jQuery init
 $(function(){
     
-//    $("#modalHerramientaCifrado").modal("show");
+    $("#modalHerramientaCifradoProperties").modal("show");
         
     $("#panel-fullscreen").click(function (e) {
         e.preventDefault();

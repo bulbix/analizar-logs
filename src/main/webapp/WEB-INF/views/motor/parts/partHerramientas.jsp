@@ -87,3 +87,37 @@
     </div>
 </div>
 <!-- Fin modal herramienta de cifrado-->
+
+
+<!-- Modal herramienta de descifrar properties-->
+<!--<div class="modal fade" id="modalHerramientaCifradoProperties" tabindex="-1" role="dialog" aria-labelledby="myModalCifradoProperties">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalCifradoProperties">Descifrar archivos properties</h4>
+            </div>
+            <div class="modal-body">
+                
+                
+                <div class="col-xs-6 col-xs-offset-3">
+                    <div class="well">
+                        <form action="" class="dropzone" dropzone="" id="dropzone">
+                            <div class="dz-default dz-message">
+                            </div>
+                        <form>
+                    </div>
+                </div>
+                <div class="pull-right">
+                    <button class="btn btn-success" ng-click="uploadFile()">Upload File</button>
+                    <button class="btn btn-danger" ng-click="reset()">Reset Dropzone</button>
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>-->
+

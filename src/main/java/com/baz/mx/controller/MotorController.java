@@ -16,6 +16,7 @@ import com.baz.mx.business.FileSearchOperations;
 import com.baz.mx.business.ListarArchivos;
 import com.baz.mx.dto.BusquedaGeneralDTO;
 import com.baz.mx.dto.UsuarioDTO;
+import com.baz.mx.entity.FileUpload;
 import com.baz.mx.enums.CIPHER_MODE;
 import com.baz.mx.request.ActualizarArchivoFTPRequest;
 import com.baz.mx.request.BusquedaLineaRequest;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +37,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +46,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 /**
  *
@@ -204,6 +210,8 @@ public class MotorController {
         return descargnadoftp;
     }
     
+    //SECCION DE HERRAMIENTAS
+    
     @PostMapping(value= "/cifrado", consumes = "application/json", produces = {"application/json"})
     @ResponseBody
     public CifradoCadenaResponse cifrado(@RequestBody CifradoCadenaRequest request){
@@ -220,6 +228,31 @@ public class MotorController {
             LOGGER.info("Ocurrió un erro al cifrar/descifrar.", e);
         }
         return null;
+    }
+    
+    @PostMapping(
+        value = "/upload"
+    )
+    public ResponseEntity uploadFile(MultipartHttpServletRequest request) {
+        LOGGER.info("Se llega el servidor con archivos.");
+        try {
+            Iterator<String> itr = request.getFileNames();
+            while (itr.hasNext()) {
+                String uploadedFile = itr.next();
+                MultipartFile file = request.getFile(uploadedFile);
+                String mimeType = file.getContentType();
+                String filename = file.getOriginalFilename();
+                byte[] bytes = file.getBytes();
+
+                LOGGER.info("Procesando archivo: " + filename);
+                FileUpload newFile = new FileUpload(filename, bytes, mimeType);
+//                fileUploadService.uploadFile(newFile);
+            }
+        }
+        catch (IOException e) {
+            return new ResponseEntity<>("{}", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>("{}", HttpStatus.OK);
     }
     
     

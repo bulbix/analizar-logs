@@ -110,7 +110,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-8 col-sm-offset-2">
+                        <div class="col-md-10 col-sm-offset-1">
                             <input type="submit" value="Buscar" class="btn btn-primary" /> 
                         </div>
                     </div>

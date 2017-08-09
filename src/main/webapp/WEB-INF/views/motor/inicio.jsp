@@ -195,7 +195,7 @@
                 <jsp:include page="parts/partHerramientas.jsp" />
                 <!--Fin se seccion de herramientas-->
             </section>
-            <section id="seleccion-busqueda" class="container" ng-controller="BusquedasController">
+            <section id="seleccion-busqueda" class="container-fluid" ng-controller="BusquedasController">
                 <div class="panel panel-primary">
                     <div class="panel-heading">Formulario de búsqueda</div>
                     <div  class="panel-body" style="min-height: 200px; max-height: 500px; overflow-y: auto;overflow-x: hidden;">
