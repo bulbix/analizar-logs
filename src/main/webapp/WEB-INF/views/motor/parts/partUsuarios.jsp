@@ -37,7 +37,7 @@
                                 <div class="form-group has-clear">
                                     <input type="text" class="form-control" ng-model="usuario.nombreUsuario" placeholder="Ingrese nombre de usuario"/>
                                     <span class="form-control-clear glyphicon glyphicon-remove form-control-feedback hidden"></span>
-                                </div>                 
+                                </div>
                             </div>
                         </div>
                         <div class="col-sm-8 col-sm-offset-2">

@@ -24,8 +24,8 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Archivo <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="#" data-target="#modalSeleccionArchivo" data-toggle="modal">Archivo a procesar</a></li>
-                        <li><a href="#" data-target="#modalArchivosFTP" data-toggle="modal">Gestión de archivos</a></li>
-                        <li><a href="#">Descarga de logs</a></li>
+                        <li><a href="#" data-target="#modalArchivosFTP" data-toggle="modal">Gestión de archivos FTP</a></li>
+                        <li><a href="#" data-target="#modalArchivosFTPDescarga" data-toggle="modal">Archivos en descarga</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
@@ -37,7 +37,7 @@
                         <li onclick="mostrarFormBusqueda('divBusquedaGeneral')"><a href="#">Busqueda de general</a></li>
                         <li role="separator" class="divider"></li>
                         <li class="dropdown-header">Cifrado</li>
-                        <li><a href="#">Cifrado</a></li>
+                        <li><a href="#" data-target="#modalHerramientaCifrado" data-toggle="modal">Cifrado</a></li>
                         <li><a href="#">Descifrar properties</a></li>
                         <li role="separator" class="divider"></li>
                         <li class="dropdown-header">Utilerias</li>

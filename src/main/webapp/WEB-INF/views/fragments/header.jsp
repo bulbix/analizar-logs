@@ -11,3 +11,4 @@
 <link href="<c:url value='/css/extras/animate.css'/>" rel="stylesheet" type="text/css">
 <link href="<c:url value='/css/bootstrap-formhelpers.min.css'/>" rel="stylesheet" type="text/css">
 <link href="<c:url value='/css/popupmenu/toastr.css'/>" rel="stylesheet" type="text/css">
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">

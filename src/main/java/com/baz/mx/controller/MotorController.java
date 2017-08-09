@@ -10,15 +10,20 @@ import com.baz.mx.beans.ArchivoFTP;
 import com.baz.mx.beans.ArchivosEnDescargaFTP;
 import com.baz.mx.beans.InformacionSession;
 import com.baz.mx.business.DescargarArchivoFTP;
+import com.baz.mx.business.Encryptor;
 import com.baz.mx.business.FTPUtils;
 import com.baz.mx.business.FileSearchOperations;
 import com.baz.mx.business.ListarArchivos;
 import com.baz.mx.dto.BusquedaGeneralDTO;
 import com.baz.mx.dto.UsuarioDTO;
+import com.baz.mx.enums.CIPHER_MODE;
 import com.baz.mx.request.ActualizarArchivoFTPRequest;
 import com.baz.mx.request.BusquedaLineaRequest;
+import com.baz.mx.request.CifradoCadenaRequest;
 import com.baz.mx.request.ObtenerArchivosFTPRequest;
 import com.baz.mx.response.BusquedaGeneralResponse;
+import com.baz.mx.response.CifradoCadenaResponse;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -90,6 +95,22 @@ public class MotorController {
             LOGGER.info("ArchvioFTP: " + archivo.getId());
             LOGGER.info("ArchvioFTP: " + archivo.getNombre());
             return Collections.singletonMap("success", true);
+        }
+        return Collections.singletonMap("success", false);
+    }
+    
+    @PostMapping(value= "eliminar/archivo/servidor", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public Map<String, Boolean> eliminarArchivo(@RequestBody ArchivoFTP archivo) {
+        LOGGER.info("json recibido: " + archivo);
+        if(null != archivo){
+            boolean eliminado = archivos.eliminarArchivoHD(archivo.getNombre());
+            if(eliminado){
+                LOGGER.info("Se elimina el archivo: " + archivo.getNombre());
+            }else{
+                LOGGER.info("No se pudo eliminar el archivo: " + archivo.getNombre());
+            }
+            return Collections.singletonMap("success", eliminado);
         }
         return Collections.singletonMap("success", false);
     }
@@ -176,11 +197,29 @@ public class MotorController {
         return Collections.singletonMap("success", respuesta);
     }
     
-    @GetMapping(value= "/actualizar/archivo/porcentajes", produces = {"application/json"})
+    @PostMapping(value= "/actualizar/archivo/porcentajes", produces = {"application/json"})
     @ResponseBody
     public ArchivosEnDescargaFTP getPorcentajesArchivoFTP(){
         LOGGER.info("Solicitando datos: " + descargnadoftp);
         return descargnadoftp;
+    }
+    
+    @PostMapping(value= "/cifrado", consumes = "application/json", produces = {"application/json"})
+    @ResponseBody
+    public CifradoCadenaResponse cifrado(@RequestBody CifradoCadenaRequest request){
+        LOGGER.info("json recibido: " + request);
+        try {
+            String cadenaPro;
+            if (request.isCifrar()) {
+                cadenaPro = Encryptor.encryptString(request.getCadena(), request.getSistema());
+            } else {
+                cadenaPro = Encryptor.decryptString(request.getCadena(), request.getSistema());
+            }
+            return new CifradoCadenaResponse(request.getCadena(), cadenaPro, request.getSistema().toString());
+        } catch (Exception e) {
+            LOGGER.info("Ocurrió un erro al cifrar/descifrar.", e);
+        }
+        return null;
     }
     
     

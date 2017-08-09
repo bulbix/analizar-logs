@@ -131,3 +131,25 @@ span.string-respuesta{
     color: black;
     font-weight: bold;
 }
+
+span.span-porcentaje{
+    display: block;
+    min-width: 500px;
+    color: black;
+    font-weight: bold;
+    padding-left: 15px;
+    text-align: left;
+}
+
+/*SECCION HERRAMIENTAS*/
+
+#modalHerramientaCifrado .row{
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
+#modalHerramientaCifrado .form-group {
+    margin-bottom: 0px;
+    margin-right: 0px;
+    margin-left: 0px;
+}

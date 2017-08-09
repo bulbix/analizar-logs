@@ -6,13 +6,14 @@
 package com.baz.mx.business;
 
 import com.baz.mx.beans.ArchivoFTP;
+import static com.baz.mx.business.FTPUtils.formatFileSize;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,28 +77,8 @@ public class ListarArchivos {
         return lista;
     }
     
-    private String formatFileSize(long size) {
-        String hrSize;
-        double b = size;
-        double k = size / 1024.0;
-        double m = ((size / 1024.0) / 1024.0);
-        double g = (((size / 1024.0) / 1024.0) / 1024.0);
-        double t = ((((size / 1024.0) / 1024.0) / 1024.0) / 1024.0);
-
-        DecimalFormat dec = new DecimalFormat("0.00");
-
-        if (t > 1) {
-            hrSize = dec.format(t).concat(" TB");
-        } else if (g > 1) {
-            hrSize = dec.format(g).concat(" GB");
-        } else if (m > 1) {
-            hrSize = dec.format(m).concat(" MB");
-        } else if (k > 1) {
-            hrSize = dec.format(k).concat(" KB");
-        } else {
-            hrSize = dec.format(b).concat(" Bytes");
-        }
-        return hrSize;
+    public boolean eliminarArchivoHD(String nombre){
+        return new File(ruta.concat(File.separator).concat(nombre)).delete();
     }
     
 }

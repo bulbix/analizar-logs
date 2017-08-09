@@ -7,9 +7,11 @@
 package com.baz.mx.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
@@ -97,6 +99,15 @@ public class ArchivoFTP implements Comparable<ArchivoFTP>{
             System.out.println("Error al parsear fecha comparando.");
         }
         return -1;
+    }
+    
+    @Override
+    public String toString(){
+        try{
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+        }catch (IOException e) {}
+        return null;
     }
     
 }

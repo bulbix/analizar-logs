@@ -86,6 +86,7 @@
                                             <td><span ng-bind="row.fechaCreacion"></span></td>
                                             <td><span ng-bind="row.tamano"></span></td>
                                             <td><button type="button" class="btn btn-primary btn-sm" ng-click="fnEstablecerArchivo(row)">Seleccionar</button></td>
+                                            <td><button type="button" class="btn btn-default btn-sm" ng-click="fnEliminarArchivo(row)">Eliminar</button></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -133,10 +134,38 @@
                                             <th scope="row"><span ng-bind="row.nombre"></span></th>
                                             <td><span ng-bind="row.fechaCreacion"></span></td>
                                             <td><span ng-bind="row.tamano"></span></td>
-                                            <td><button type="button" class="btn btn-primary btn-sm" ng-click="actualizarArchivoDesdeFTP(row)">Actualizar log</button></td>
+                                            <td><button type="button" class="btn btn-primary btn-sm" data-dismiss="modal" ng-click="actualizarArchivoDesdeFTP(row)">Actualizar log</button></td>
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal descarga de archivos ftp-->
+                <div class="modal fade" id="modalArchivosFTPDescarga" tabindex="-1" role="dialog" aria-labelledby="myModalLabelFTPDescarga">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabelFTPDescarga">Archivos en descarga de servidor FTP</h4>
+                            </div>
+                            <div class="modal-body" >
+                                <div class="row">
+                                    <div class="col-md-10 col-md-offset-1">
+                                        <label ng-show="!servidoresFTPDescargando.length">No existen archivos en descarga</label>
+                                        <div class="progress progress-striped active" ng-repeat="row in servidoresFTPDescargando">
+                                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="row.porcentaje"
+                                                 aria-valuemin="0" aria-valuemax="100" style="width: {{row.porcentaje + '%'}}">
+                                                <span class="span-porcentaje"> {{row.ftp + ' -- ' + row.nombre}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
@@ -162,6 +191,9 @@
                         </div>
                     </div>
                 </div>
+                <!--Se agregan las herramientas-->
+                <jsp:include page="parts/partHerramientas.jsp" />
+                <!--Fin se seccion de herramientas-->
             </section>
             <section id="seleccion-busqueda" class="container" ng-controller="BusquedasController">
                 <div class="panel panel-primary">

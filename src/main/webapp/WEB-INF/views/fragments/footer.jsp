@@ -22,6 +22,7 @@
             <script type="text/javascript" src="<c:url value='/js/popupmenu/BootstrapMenu.min.js'/>"></script>
             <script type="text/javascript" src="<c:url value='/js/popupmenu/toastr.js'/>"></script>
             <script type="text/javascript" src="<c:url value='/js/extra/clipboard.min.js'/>"></script>
+            <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
         </footer>
     </div>
 </div>

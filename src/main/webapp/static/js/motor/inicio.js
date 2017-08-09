@@ -3,11 +3,12 @@
 var busquedaLinea = null;
 var horaInicio = "09:00 AM";
 var horaFin = "11:00 AM";
+var isShowDownloadModal = false;//para recargar las graficas de descarga de archivos de ftp
 
 var myAngularApp = angular.module('myApp', ['ngCookies', 'ui.bootstrap']);//'ngAnimate', 'ngSanitize', 'ui.bootstrap'
 
 //Información general
-myAngularApp.controller('InformacionGeneralController', function ($scope, $http, $window) {
+myAngularApp.controller('InformacionGeneralController', function ($scope, $http, $window, $timeout) {
     var base = "http://" + $window.location.hostname + ":" + $window.location.port + $window.location.pathname;
     
     $scope.archivoActual = null;
@@ -32,8 +33,13 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
     $scope.servidoresFTP = [ {ip: "10.51.53.64"}, {ip: "10.51.53.115"}];
     $scope.servidoresFTPCore = true;
     $scope.servidoresFTPIP = $scope.servidoresFTP[0].ip;
-    console.log($scope.servidoresFTPIP);
+    $scope.servidoresFTPDescargando = [];
+
     $('#modalSeleccionArchivo').on('show.bs.modal', function (e) {
+        $scope.obtenerArchivosServer();
+    });
+    
+    $scope.obtenerArchivosServer = function(){
         loading(true);
         $http({withCredentials: true,
             method: 'POST',
@@ -45,10 +51,17 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
         }).finally(function() {
             loading(false);
         });
+    };
+    
+    $('#modalArchivosFTPDescarga').on('show.bs.modal', function (e) {
+        isShowDownloadModal = true;
+        $scope.obtenerPorcentajesFTP();
+    });
+    $('#modalArchivosFTPDescarga').on('hide.bs.modal', function (e) {
+        isShowDownloadModal = false;
     });
     
     $scope.fnEstablecerArchivo = function(data){
-        console.log(data);
         loading(true);
         $http({withCredentials: true,
             method: 'POST',
@@ -59,12 +72,34 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
                 if(response.data.success === true){
                     console.log("Se obtienen los archivos correctamente status: " + response.status);
                     $scope.archivoActual = data;
-                    $('#modalSeleccionArchivo').modal('hide');
                 }
                 else{
                     alert("No se pudo establecer el archivo");
-                    $('#modalSeleccionArchivo').modal('hide');
                 }
+                $('#modalSeleccionArchivo').modal('hide');
+        }).catch(function(response) {
+            console.error('Error occurred:', response.status, response.data);
+        }).finally(function() {
+            loading(false);
+        });
+    };
+    
+    $scope.fnEliminarArchivo = function(data){
+        loading(true);
+        $http({withCredentials: true,
+            method: 'POST',
+            url: base + '/eliminar/archivo/servidor',
+            data: data
+            })
+            .then(function (response){
+                if(response.data.success === true){
+                    console.log("Se elimina correctamente el archivo: " + data.nombre);
+                    toastr.info("El archivo "+ data.nombre +" se ha eliminado correctamente.");
+                }
+                else{
+                    alert("No se pudo eliminar el archivo");
+                }
+                $scope.obtenerArchivosServer();
         }).catch(function(response) {
             console.error('Error occurred:', response.status, response.data);
         }).finally(function() {
@@ -106,6 +141,7 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
             })
         .then(function (response){
             console.log(response.data);
+            toastr.info("Ha iniciado la descarga del archivo: " + row.nombre);
         }).catch(function(response) {
             console.error('Error occurred:', response.status, response.data);
         }).finally(function() {
@@ -113,6 +149,72 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
         });
     };
     
+    $scope.obtenerPorcentajesFTP = function(){
+        console.log('Obteniendo porcentajes');
+        $http({withCredentials: true,
+            method: 'POST',
+            url: base + '/actualizar/archivo/porcentajes'
+            })
+        .then(function (response){
+            console.log(response.data);
+            $scope.servidoresFTPDescargando = response.data.archivos;
+        }).catch(function(response) {
+            console.error('Error occurred:', response.status, response.data);
+        });
+        if(isShowDownloadModal){
+            $timeout(function(){
+                $scope.obtenerPorcentajesFTP();
+            }, 2000);
+        }
+    };
+    
+    //SECCION DE HERRAMIENTAS
+    $scope.herrObjCifrar = {
+        cadena: "",
+        cifrar: true,
+        sistema: "Alnova"
+    };
+    
+    $scope.herrArrayCadenasCifrado = [];
+
+    $scope.fnHerrLimpiarTablaCifrado = function(){
+        $scope.herrArrayCadenasCifrado = [];
+    };
+    
+    $('#toggle-tipo-cifrado').change(function() {
+        $scope.herrObjCifrar.cifrar = $(this).prop('checked');
+    });
+    
+    $scope.fnHerrCifrarSistema = function(sistema){
+        $scope.herrObjCifrar.sistema = sistema;
+    };
+    
+    $scope.fnHerrCifrarCadena = function(){
+        if($scope.herrObjCifrar.cadena !== ""){
+            console.log('Consultando servicio de cifrado: ' + JSON.stringify($scope.herrObjCifrar));
+            loading(true);
+            $http({withCredentials: true,
+                method: 'POST',
+                url: base + '/cifrado',
+                data: $scope.herrObjCifrar
+                })
+            .then(function (response){
+                if(response.data !== null && response.data !== ""){
+                    $scope.herrArrayCadenasCifrado.push(response.data);
+                }
+                else{
+                    alert("No se pudo cifrar/descifrar la cadena.");
+                }
+            }).catch(function(response) {
+                console.error('Error occurred:', response.status, response.data);
+            }).finally(function() {
+                loading(false);
+            });
+        }
+        else{
+            alert("Favor de ingresar una cadena.");
+        }
+    };
 });
 
 //Sección de búsquedas
@@ -397,8 +499,8 @@ var mostrarFormBusqueda = function(elem){
 //jQuery init
 $(function(){
     
-    $('#modalArchivosFTP').modal('show');
-    
+//    $("#modalHerramientaCifrado").modal("show");
+        
     $("#panel-fullscreen").click(function (e) {
         e.preventDefault();
         
@@ -499,10 +601,7 @@ $(function(){
         actions: [{
             name: 'Ver detalle de línea',
                 onClick: function(data) {
-                    //alert('Epa!!!: ' + data);
-                    //angular.element(document.getElementsByClassName('glyphicon-line-number')).scope().submitBusquedaLinea(data);
                     busquedaLinea(data);
-                    //$('#modalJSONFormato').modal('show');
                 }
             }
         ]
