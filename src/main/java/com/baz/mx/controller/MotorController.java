@@ -109,9 +109,9 @@ public class MotorController {
     @ResponseBody
     public Map<String, Boolean> eliminarArchivo(@RequestBody ArchivoFTP archivo) {
         LOGGER.info("json recibido: " + archivo);
-        String path = sessionData.getRutaArchivoId(sessionData.getIdArchivo());
+        String path = sessionData.getRutaArchivoId(archivo.getId());
         LOGGER.info("Archivo a eliminar: " + path);
-        if(null != archivo){
+        if(null != path){
             boolean eliminado = archivos.eliminarArchivoHD(path);
             if(eliminado){
                 LOGGER.info("Se elimina el archivo: " + archivo.getNombre());
