@@ -38,7 +38,7 @@
                         <li role="separator" class="divider"></li>
                         <li class="dropdown-header">Cifrado</li>
                         <li><a href="#" data-target="#modalHerramientaCifrado" data-toggle="modal">Cifrado</a></li>
-                        <li><a href="#">Descifrar properties</a></li>
+                        <li><a href="#" data-target="#modalHerramientaCifradoProperties" data-toggle="modal">Descifrar properties</a></li>
                         <li role="separator" class="divider"></li>
                         <li class="dropdown-header">Utilerias</li>
                         <li><a href="#">Decodificar imagen</a></li>

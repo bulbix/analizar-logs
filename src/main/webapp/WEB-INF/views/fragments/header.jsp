@@ -12,3 +12,4 @@
 <link href="<c:url value='/css/bootstrap-formhelpers.min.css'/>" rel="stylesheet" type="text/css">
 <link href="<c:url value='/css/popupmenu/toastr.css'/>" rel="stylesheet" type="text/css">
 <link href="<c:url value='/css/extras/bootstrap-toggle.min.css'/>" rel="stylesheet" type="text/css">
+<link href="<c:url value='/css/extras/fileinput.min.css'/>" rel="stylesheet" type="text/css">

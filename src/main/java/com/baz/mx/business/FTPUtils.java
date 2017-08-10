@@ -6,6 +6,7 @@
 package com.baz.mx.business;
 
 import com.baz.mx.beans.ArchivoFTP;
+import com.baz.mx.exceptions.FTPConexionException;
 import com.baz.mx.utils.Constantes;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -36,7 +37,7 @@ public class FTPUtils {
     public FTPUtils() {
     }
 
-    public ArrayList<ArchivoFTP> obtenerArchivosBD_JVC(String serverActivo, boolean isBD) {
+    public ArrayList<ArchivoFTP> obtenerArchivosBD_JVC(String serverActivo, boolean isBD) throws FTPConexionException{
         ArrayList<ArchivoFTP> archivosFTP = new ArrayList<>();
         ftpClient = new FTPClient();
         try {
@@ -63,6 +64,7 @@ public class FTPUtils {
             }
         } catch (IOException ex) {
             LOGGER.info("Error: " + ex.getMessage());
+            throw new FTPConexionException("No se pudo conectar con el servidor ftp: " + serverActivo);
         } finally {
             try {
                 if (ftpClient.isConnected()) {

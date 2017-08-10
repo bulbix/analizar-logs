@@ -5,10 +5,10 @@
  */
 package com.baz.mx.controller;
 
-import com.baz.mx.ArchivoNoSeleccionadoException;
 import com.baz.mx.beans.ArchivoFTP;
 import com.baz.mx.beans.ArchivosEnDescargaFTP;
 import com.baz.mx.beans.InformacionSession;
+import com.baz.mx.business.Cifrador;
 import com.baz.mx.business.DescargarArchivoFTP;
 import com.baz.mx.business.Encryptor;
 import com.baz.mx.business.FTPUtils;
@@ -17,13 +17,15 @@ import com.baz.mx.business.ListarArchivos;
 import com.baz.mx.dto.BusquedaGeneralDTO;
 import com.baz.mx.dto.UsuarioDTO;
 import com.baz.mx.entity.FileUpload;
-import com.baz.mx.enums.CIPHER_MODE;
+import com.baz.mx.exceptions.ArchivoNoSeleccionadoException;
+import com.baz.mx.exceptions.FTPConexionException;
 import com.baz.mx.request.ActualizarArchivoFTPRequest;
 import com.baz.mx.request.BusquedaLineaRequest;
 import com.baz.mx.request.CifradoCadenaRequest;
 import com.baz.mx.request.ObtenerArchivosFTPRequest;
 import com.baz.mx.response.BusquedaGeneralResponse;
 import com.baz.mx.response.CifradoCadenaResponse;
+import com.baz.mx.utils.Constantes;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -45,6 +47,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -62,16 +65,12 @@ public class MotorController {
             
     @Autowired
     private ListarArchivos archivos;
-    
     @Autowired
     private InformacionSession sessionData;
-    
     @Autowired
     private FTPUtils ftpUtils;
-    
     @Autowired
     private DescargarArchivoFTP descargarFTP;
-    
     @Autowired
     private ArchivosEnDescargaFTP descargnadoftp;
     
@@ -80,6 +79,7 @@ public class MotorController {
         LOGGER.info("-----------------------------------------");
         LOGGER.info("Id de session obj session: " + session.getId());
         model.addAttribute("ArchivoFTP", sessionData.getArchivoId(sessionData.getIdArchivo()));
+        model.addAttribute("FTPServers", Constantes.FTP_SERVERS);
         return "motor/inicio";
     }
     
@@ -190,7 +190,7 @@ public class MotorController {
     
     @PostMapping(value= "obtener/archivos/ftp", consumes = "application/json", produces = {"application/json"})
     @ResponseBody
-    public ArrayList<ArchivoFTP> getArchivosFTP(@RequestBody ObtenerArchivosFTPRequest infoFTP) throws ArchivoNoSeleccionadoException{
+    public ArrayList<ArchivoFTP> getArchivosFTP(@RequestBody ObtenerArchivosFTPRequest infoFTP) throws FTPConexionException{
         LOGGER.info("json recibido: " + infoFTP);
         return ftpUtils.obtenerArchivosBD_JVC(infoFTP.getIp(), infoFTP.isCore());
     }
@@ -230,9 +230,7 @@ public class MotorController {
         return null;
     }
     
-    @PostMapping(
-        value = "/upload"
-    )
+    @PostMapping(value = "/subir/multiples/archivos/cifrados")
     public ResponseEntity uploadFile(MultipartHttpServletRequest request) {
         LOGGER.info("Se llega el servidor con archivos.");
         try {
@@ -243,16 +241,29 @@ public class MotorController {
                 String mimeType = file.getContentType();
                 String filename = file.getOriginalFilename();
                 byte[] bytes = file.getBytes();
-
                 LOGGER.info("Procesando archivo: " + filename);
                 FileUpload newFile = new FileUpload(filename, bytes, mimeType);
-//                fileUploadService.uploadFile(newFile);
             }
         }
         catch (IOException e) {
             return new ResponseEntity<>("{}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>("{}", HttpStatus.OK);
+    }
+    
+    @PostMapping(value = "/subir/archivo/cifrado", produces = "application/json")
+    @ResponseBody
+    public BusquedaGeneralResponse descifrarProperties(@RequestParam(value = "file", required = false) MultipartFile file) {
+        try {
+            String mimeType = file.getContentType();
+            String filename = file.getOriginalFilename();
+            byte[] bytes = file.getBytes();
+            LOGGER.info("Descifrando el archivo: " + filename + " de tipo: " + mimeType);
+            return new BusquedaGeneralResponse(Cifrador.decrypt(bytes));
+        } catch (Exception ex) {
+            LOGGER.info("No se pudo descifrar el archivo.", ex);
+            return new BusquedaGeneralResponse();
+        }
     }
     
     

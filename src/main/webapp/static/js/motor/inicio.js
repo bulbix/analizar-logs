@@ -4,57 +4,23 @@ var busquedaLinea = null;
 var horaInicio = "09:00 AM";
 var horaFin = "11:00 AM";
 var isShowDownloadModal = false;//para recargar las graficas de descarga de archivos de ftp
-Dropzone.autoDiscover = false;
 
+//Configuración de la carga de archivos
+$("#file-archivo-cifrado").fileinput({
+    language: 'es',
+    maxFileSize: 1000,
+    resizeImage: false,
+    uploadLabel: 'Descifrar',
+    browseLabel:  'Seleccionar properties',
+    previewFileIcon: "<i class='glyphicon glyphicon-qrcode'></i>",
+    allowedFileExtensions: ['properties']
+});
+
+//SECCION ANGULAR JS
 //'ngAnimate', 'ngSanitize', 'ui.bootstrap'
-var myAngularApp = angular.module('myApp', ['ngCookies', 'ui.bootstrap']);
+var myAngularApp = angular.module('myApp', ['ngCookies', 'ui.bootstrap']).directive('test', function() {
+});
 
-//.directive('dropzone', function() {
-//    return {
-//        restrict: 'C',
-//        link: function(scope, element, attrs) {
-//
-//            var config = {
-//                url: 'http://localhost:8080/motor/upload',
-//                maxFilesize: 1000,
-//                paramName: "uploadfile",
-//                maxThumbnailFilesize: 10,
-//                parallelUploads: 1,
-//                autoProcessQueue: false
-//            };
-//
-//            var eventHandlers = {
-//                'addedfile': function(file) {
-//                    scope.file = file;
-//                    if (this.files[1]!==null) {
-//                        this.removeFile(this.files[0]);
-//                    }
-//                    scope.$apply(function() {
-//                        scope.fileAdded = true;
-//                    });
-//                },
-//                'success': function (file, response) {
-//                }
-//
-//            };
-//
-//            dropzone = new Dropzone(element[0], config);
-//
-//            angular.forEach(eventHandlers, function(handler, event) {
-//                dropzone.on(event, handler);
-//            });
-//
-//            scope.processDropzone = function() {
-//                dropzone.processQueue();
-//            };
-//
-//            scope.resetDropzone = function() {
-//                dropzone.removeAllFiles();
-//            };
-//        }
-//    };
-//});
-//
 
 //Información general
 myAngularApp.controller('InformacionGeneralController', function ($scope, $http, $window, $timeout) {
@@ -84,6 +50,10 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
     $scope.servidoresFTPIP = $scope.servidoresFTP[0].ip;
     $scope.servidoresFTPDescargando = [];
 
+    $scope.fnServidoresFTPInit = function(list){
+        
+    };
+    
     $('#modalSeleccionArchivo').on('show.bs.modal', function (e) {
         $scope.obtenerArchivosServer();
     });
@@ -174,7 +144,7 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
                 $scope.archivosFTP = response.data;
                 console.log(response.data);
         }).catch(function(response) {
-            console.error('Error occurred:', response.status, response.data);
+            validarErrorHTTPFTPConnection(response);
         }).finally(function() {
             loading(false);
         });
@@ -192,7 +162,7 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
             console.log(response.data);
             toastr.info("Ha iniciado la descarga del archivo: " + row.nombre);
         }).catch(function(response) {
-            console.error('Error occurred:', response.status, response.data);
+            validarErrorHTTPFTPConnection(response);
         }).finally(function() {
             loading(false);
         });
@@ -265,18 +235,45 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
         }
     };
     
-//    $scope.partialDownloadLink = 'http://localhost:8080/download?filename=';
-//    $scope.filename = '';
-//
-//    $scope.uploadFile = function() {
-//        $scope.processDropzone();
-//    };
-//
-//    $scope.reset = function() {
-//        $scope.resetDropzone();
-//    };
-                    
-                    
+    //CIFRADO PROPERTIES
+    
+    $scope.file = null;
+
+     $scope.uploadFile = function(files) {
+        $scope.file = files[0];
+        console.log('Se selecciona el archivivo.');
+     };
+
+    $scope.uploadFileCifrado = function() {
+        console.log('Inicia la subida del archivo');
+        emptyResult();
+        loading(true);
+        var fd = new FormData();
+        fd.append('file', $scope.file);
+        $http({withCredentials: true,
+            method: 'POST',
+            url: base + '/subir/archivo/cifrado',
+            data: fd,
+            transformRequest: angular.identity,
+            headers: {'Content-Type': undefined}
+        })
+        .then(function (response){
+            console.log(response);
+            if(null !== response.data && response.data !== '' && response.data.informacion !== null && response.data.informacion !== ""){
+                escribirDataResult(syntaxHighlightText(response.data.informacion));
+                $("#modalHerramientaCifradoProperties").modal("hide");
+                $(".fileinput-remove").trigger('click');
+            }
+            else{
+                alert('No se pudo descrifrar el archivo.');
+            }
+        }).catch(function(response) {
+            console.error('Error occurred:', response.status, response.data);
+        }).finally(function() {
+            loading(false);
+        });
+    };
+         
 });
 
 //Sección de búsquedas
@@ -356,7 +353,6 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
     
     $scope.fnValidaCriterio = function(option){
         if(option === $scope.checkboxGeneralModel.usuario.valor){
-            $scope.checkboxGeneralModel.ruta.visible = false;
             $scope.checkboxGeneralModel.textoLibre.visible = false;
         }
         else if(option === $scope.checkboxGeneralModel.ruta.valor){
@@ -535,6 +531,19 @@ var validarErrorHTTP = function(response){
     }
 };
 
+var validarErrorHTTPFTPConnection = function(response){
+    console.error('Error occurred:', response.status, response.data);
+    if(response.status === 500){
+        if(response.data.exception.includes('FTPConexionException')){
+            console.error('No se pudo conectar con el servidor ftp seleccionado.');
+            toastr.error('No se pudo conectar con el servidor ftp seleccionado.');
+        }
+        else{
+            console.error('Ha ocurrido un error en el servidor: ' + response.data.exception);
+        }
+    }
+};
+
 //Funcion para mostrar el mensaje de archivo no seleccionado
 var dialogArchivoNoSeleccionado = function(message){
     bootbox.dialog({
@@ -560,9 +569,7 @@ var mostrarFormBusqueda = function(elem){
 
 //jQuery init
 $(function(){
-    
-    $("#modalHerramientaCifradoProperties").modal("show");
-        
+            
     $("#panel-fullscreen").click(function (e) {
         e.preventDefault();
         

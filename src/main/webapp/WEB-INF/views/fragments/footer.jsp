@@ -23,7 +23,8 @@
             <script type="text/javascript" src="<c:url value='/js/popupmenu/toastr.js'/>"></script>
             <script type="text/javascript" src="<c:url value='/js/extra/clipboard.min.js'/>"></script>
             <script type="text/javascript" src="<c:url value='/js/extra/bootstrap-toggle.min.js'/>"></script>
-            <script type="text/javascript" src="<c:url value='/js/extra/dropzone.js'/>"></script>
+            <script type="text/javascript" src="<c:url value='/js/extra/fileinput.min.js'/>"></script>
+            <script type="text/javascript" src="<c:url value='/js/extra/es.js'/>"></script>
         </footer>
     </div>
 </div>

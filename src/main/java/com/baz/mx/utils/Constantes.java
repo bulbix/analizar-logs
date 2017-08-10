@@ -16,8 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class Constantes {
     
-    public static String FTP_IP_64;
-    public static String FTP_IP_115;
+    public static String FTP_SERVERS;
     public static int FTP_PORT;
     public static String FTP_USER;
     public static String FTP_PASS;
@@ -27,16 +26,14 @@ public class Constantes {
     public static String RUTA_LOGS;
            
     @Autowired
-    public Constantes(@Value("${ftp.server.64}") String FTP_IP_64,
-            @Value("${ftp.server.115}") String FTP_IP_115,
+    public Constantes(@Value("${ftp.servers}") String FTP_SERVERS,
             @Value("${ftp.port}") String FTP_PORT,
             @Value("${ftp.user}") String FTP_USER,
             @Value("${ftp.pass}") String FTP_PASS,
             @Value("${ftp.path.bancadigital}") String FTP_BAZ,
             @Value("${ftp.path.jvc}") String FTP_JVC,
             @Value("${ruta.local.logs}") String RUTA_LOGS) {
-        this.FTP_IP_64 = FTP_IP_64;
-        this.FTP_IP_115 = FTP_IP_115;
+        this.FTP_SERVERS = FTP_SERVERS;
         this.FTP_PORT = Integer.parseInt(FTP_PORT);
         this.FTP_USER = FTP_USER;
         this.FTP_PASS = FTP_PASS;

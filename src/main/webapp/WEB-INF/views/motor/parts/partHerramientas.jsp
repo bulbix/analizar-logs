@@ -90,7 +90,7 @@
 
 
 <!-- Modal herramienta de descifrar properties-->
-<!--<div class="modal fade" id="modalHerramientaCifradoProperties" tabindex="-1" role="dialog" aria-labelledby="myModalCifradoProperties">
+<div class="modal fade" id="modalHerramientaCifradoProperties" tabindex="-1" role="dialog" aria-labelledby="myModalCifradoProperties">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -98,26 +98,19 @@
                 <h4 class="modal-title" id="myModalCifradoProperties">Descifrar archivos properties</h4>
             </div>
             <div class="modal-body">
-                
-                
-                <div class="col-xs-6 col-xs-offset-3">
-                    <div class="well">
-                        <form action="" class="dropzone" dropzone="" id="dropzone">
-                            <div class="dz-default dz-message">
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <form class="form-horizontal" ng-submit="uploadFileCifrado()" role="form">
+                            <div class="form-group">
+                                <input id="file-archivo-cifrado" class="file" type="file" onchange="angular.element(this).scope().uploadFile(this.files)">
                             </div>
-                        <form>
+                            <!--<input type="file" name="file" onchange="angular.element(this).scope().uploadFile(this.files)" />-->
+                            <!--<input type="submit" value="Enviar" data-dismiss="modal" ng-click="uploadFilesss()"/>-->
+                        </form>
                     </div>
                 </div>
-                <div class="pull-right">
-                    <button class="btn btn-success" ng-click="uploadFile()">Upload File</button>
-                    <button class="btn btn-danger" ng-click="reset()">Reset Dropzone</button>
-                </div>
-                
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
-</div>-->
+</div>
 

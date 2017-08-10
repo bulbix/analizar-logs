@@ -3,19 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.baz.mx;
+package com.baz.mx.exceptions;
 
 /**
  *
  * @author acruzb
  */
-public class ArchivoNoSeleccionadoException extends Exception{
-
-    public ArchivoNoSeleccionadoException() {
+public class FTPConexionException extends Exception{
+    
+    public FTPConexionException() {
         super();
     }
     
-    public ArchivoNoSeleccionadoException(String message) {
+    public FTPConexionException(String message) {
         super(message);
     }
     
