@@ -112,12 +112,5 @@ public class Encryptor {
             return IV_PARAMETER_ACLARACIONES;
         }
     }
-
-    public static void main(String[] args) throws Exception {
-        System.out.println(System.getProperty("java.home"));
-        System.out.println(Encryptor.encryptString("Hola mundo curle", CIPHER_MODE.ALNOVA));
-        System.out.println(Encryptor.decryptString("_--CdqEEVlJgEFGmEC_7qpUZzUYlZy_-NJfEJ3ZrC9s", CIPHER_MODE.ALNOVA));
-        System.out.println(Encryptor.encryptString("40371600044183", CIPHER_MODE.ACLARACIONES));
-        System.out.println(Encryptor.decryptString("BCgCjPA1mmZ8p1CP9pCGp2bgra-qD3tluYinaUBUngQ", CIPHER_MODE.ACLARACIONES));
-    }
+    
 }

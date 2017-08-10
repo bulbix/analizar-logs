@@ -5,6 +5,7 @@
  */
 package com.baz.mx.utils;
 
+import java.io.File;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,8 @@ public class Constantes {
     public static String FTP_JVC;
     
     public static String RUTA_LOGS;
+    public static String RUTA_LOGS_BAZ;
+    public static String RUTA_LOGS_JVC;
            
     @Autowired
     public Constantes(@Value("${ftp.servers}") String FTP_SERVERS,
@@ -40,5 +43,7 @@ public class Constantes {
         this.FTP_BAZ = FTP_BAZ;
         this.FTP_JVC = FTP_JVC;
         this.RUTA_LOGS = RUTA_LOGS;
+        this.RUTA_LOGS_BAZ = RUTA_LOGS.concat(File.separator).concat(FTP_BAZ);
+        this.RUTA_LOGS_JVC = RUTA_LOGS.concat(File.separator).concat(FTP_JVC);
     }
 }

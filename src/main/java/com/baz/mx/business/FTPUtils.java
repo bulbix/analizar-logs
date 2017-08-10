@@ -59,7 +59,7 @@ public class FTPUtils {
                     details += "\t\t" + formatFileSize(file.getSize());
                     details += "\t\t" + dateFormater.format(file.getTimestamp().getTime());
                     LOGGER.info(details);
-                    archivosFTP.add(new ArchivoFTP(0, file.getName(), "", dateFormater.format(file.getTimestamp().getTime()), formatFileSize(file.getSize()), file.getSize()));
+                    archivosFTP.add(new ArchivoFTP(0, file.getName(), "", dateFormater.format(file.getTimestamp().getTime()), formatFileSize(file.getSize()), file.getSize(), isBD));
                 }
             }
         } catch (IOException ex) {

@@ -28,21 +28,31 @@ public class ArchivoFTP implements Comparable<ArchivoFTP>{
     private String fechaCreacion;
     private String tamano;
     private long tamanoKB;
+    private boolean core;
 
     public ArchivoFTP() {
     }
 
-    public ArchivoFTP(int id, String nombre, String rutaCompleta, String fechaCreacion, String tamano, long tamanoKB) {
+    public ArchivoFTP(int id, String nombre, String rutaCompleta, String fechaCreacion, String tamano, long tamanoKB, boolean core) {
         this.id = id;
         this.nombre = nombre;
         this.rutaCompleta = rutaCompleta;
         this.fechaCreacion = fechaCreacion;
         this.tamano = tamano;
         this.tamanoKB = tamanoKB;
+        this.core = core;
     }
 
     public int getId() {
         return id;
+    }
+
+    public boolean isCore() {
+        return core;
+    }
+
+    public void setCore(boolean core) {
+        this.core = core;
     }
 
     public void setId(int id) {

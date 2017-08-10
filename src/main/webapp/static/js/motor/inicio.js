@@ -43,15 +43,27 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
     
     //Descarga de los archivos en disco
     $scope.archivosHD = [];
+    $scope.archivosHDCarpeta = true;
+    
+    $('#toggle-carpeta-log').change(function() {
+        $scope.archivosHDCarpeta = $(this).prop('checked');
+        $scope.obtenerArchivosServer();
+    });
     
     $scope.archivosFTP = [];
-    $scope.servidoresFTP = [ {ip: "10.51.53.64"}, {ip: "10.51.53.115"}];
+    $scope.servidoresFTP = [];
     $scope.servidoresFTPCore = true;
-    $scope.servidoresFTPIP = $scope.servidoresFTP[0].ip;
+    $scope.servidoresFTPIP = {};
     $scope.servidoresFTPDescargando = [];
 
     $scope.fnServidoresFTPInit = function(list){
-        
+        var data = list.split(",");
+        for (var i = 0; i < data.length; i++) {
+            $scope.servidoresFTP.push({"ip": data[i]});
+        }
+        if($scope.servidoresFTP.length > 0){
+            $scope.servidoresFTPIP = $scope.servidoresFTP[0].ip;
+        }
     };
     
     $('#modalSeleccionArchivo').on('show.bs.modal', function (e) {
@@ -62,9 +74,11 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
         loading(true);
         $http({withCredentials: true,
             method: 'POST',
-            url: base + '/listar/archivos'})
-            .then(function (response){
-                $scope.archivosHD = response.data;
+            url: base + '/listar/archivos',
+            data: JSON.stringify({core: $scope.archivosHDCarpeta})
+            })
+        .then(function (response){
+            $scope.archivosHD = response.data;
         }).catch(function(response) {
             console.error('Error occurred:', response.status, response.data);
         }).finally(function() {

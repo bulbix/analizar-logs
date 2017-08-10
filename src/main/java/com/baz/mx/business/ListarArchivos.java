@@ -7,7 +7,7 @@ package com.baz.mx.business;
 
 import com.baz.mx.beans.ArchivoFTP;
 import static com.baz.mx.business.FTPUtils.formatFileSize;
-import java.io.File;
+import com.baz.mx.utils.Constantes;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.tools.ant.DirectoryScanner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -35,19 +33,20 @@ public class ListarArchivos {
     
     private final String DATE_FORMATTER = "dd/MM/yyyy hh:mm:ss a";
     private final DateFormat dateFormater;
-    
-    private final String ruta;
 
-    @Autowired
-    public ListarArchivos(@Value("${ruta.local.logs}") String ruta ) {
+    public ListarArchivos() {
         dateFormater = new SimpleDateFormat(DATE_FORMATTER);
-        this.ruta = ruta;
     }
 
-    public List<ArchivoFTP> obtenerLista(){
-        System.out.println("Se obtienen los archivos de la ruta: " + ruta);
+    public List<ArchivoFTP> obtenerLista(boolean isCore){
         List<ArchivoFTP> lista = new ArrayList<>();
-        Path p1 = Paths.get(ruta);
+        Path p1;
+        if(isCore){
+            p1 = Paths.get(Constantes.RUTA_LOGS_BAZ);
+        }
+        else{
+            p1 = Paths.get(Constantes.RUTA_LOGS_JVC);
+        }
         DirectoryScanner scanner = new DirectoryScanner();
         scanner.setIncludes(new String[]{"**/*"});
         scanner.setBasedir(p1.toString());
@@ -77,8 +76,8 @@ public class ListarArchivos {
         return lista;
     }
     
-    public boolean eliminarArchivoHD(String nombre){
-        return new File(ruta.concat(File.separator).concat(nombre)).delete();
+    public boolean eliminarArchivoHD(String path){
+        return Paths.get(path).toFile().delete();
     }
     
 }

@@ -85,10 +85,10 @@ public class MotorController {
     
     @PostMapping(value= "listar/archivos", produces = "application/json")
     @ResponseBody
-    public List<ArchivoFTP> postAllFiles(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+    public List<ArchivoFTP> postAllFiles(@RequestBody Map<String, Boolean> request, HttpSession session) {
         LOGGER.info("-----------------------------------------");
-        LOGGER.info("Id de session obj session: " + session.getId());
-        List<ArchivoFTP> lista = archivos.obtenerLista();
+        LOGGER.info("Se listan los archivos de la carpeta: " + ((Boolean.valueOf(request.get("core").toString()))? "CORE": "JVC"));
+        List<ArchivoFTP> lista = archivos.obtenerLista(Boolean.valueOf(request.get("core").toString()));
         sessionData.setLista(lista);
         return lista;
     }
@@ -109,8 +109,10 @@ public class MotorController {
     @ResponseBody
     public Map<String, Boolean> eliminarArchivo(@RequestBody ArchivoFTP archivo) {
         LOGGER.info("json recibido: " + archivo);
+        String path = sessionData.getRutaArchivoId(sessionData.getIdArchivo());
+        LOGGER.info("Archivo a eliminar: " + path);
         if(null != archivo){
-            boolean eliminado = archivos.eliminarArchivoHD(archivo.getNombre());
+            boolean eliminado = archivos.eliminarArchivoHD(path);
             if(eliminado){
                 LOGGER.info("Se elimina el archivo: " + archivo.getNombre());
             }else{

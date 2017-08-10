@@ -8,7 +8,6 @@ package com.baz.mx.business;
 import com.baz.mx.beans.ArchivoPorcentaje;
 import com.baz.mx.beans.ArchivosEnDescargaFTP;
 import com.baz.mx.utils.Constantes;
-import static com.baz.mx.utils.Constantes.RUTA_LOGS;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,7 +45,7 @@ public class DescargarArchivoFTP {
         pool = Executors.newCachedThreadPool();
     }
     
-    public boolean descargarArchivoFTP(final String serverActivo, boolean isBD, final String archivo, final long tamKB) {
+    public boolean descargarArchivoFTP(final String serverActivo, final boolean isBD, final String archivo, final long tamKB) {
         try {
             ftpClient = new FTPClient();
             ftpClient.connect(serverActivo, Constantes.FTP_PORT);
@@ -66,14 +65,14 @@ public class DescargarArchivoFTP {
                     LOGGER.info("Inicia la descarga del archivo: " + archivo + " del servidor: " + serverActivo);
                     OutputStream outputStream1 = null;
                     try {
-                        File downloadFile = new File(RUTA_LOGS + System.getProperty("file.separator") + archivo);
+                        String ruta = ((isBD) ? Constantes.RUTA_LOGS_BAZ: Constantes.RUTA_LOGS_JVC).concat(File.separator).concat(archivo);
+                        File downloadFile = new File(ruta);
                         outputStream1 = new BufferedOutputStream(new FileOutputStream(downloadFile));
                         ftpClient.setCopyStreamListener(createListener(tamKB, archivoDesc));
                         boolean success = ftpClient.retrieveFile(archivo, outputStream1);
                         outputStream1.close();
                         if (success) {
-                            LOGGER.info("Se ha terminado la descarga.");
-                            LOGGER.info(RUTA_LOGS + System.getProperty("file.separator") + archivo);
+                            LOGGER.info("Se ha terminado la descarga del archivo: " + ruta);
                         }
                     } catch (FileNotFoundException ex) {
                         LOGGER.info("Error " + ex.getMessage());

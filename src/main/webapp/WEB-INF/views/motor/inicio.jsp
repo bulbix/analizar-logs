@@ -76,11 +76,20 @@
                                 <h4 class="modal-title" id="myModalLabel">Seleccionar el archivo a procesar</h4>
                             </div>
                             <div class="modal-body" >
+                                <div class="row" style="padding-bottom: 15px;">
+                                    <div class="col-md-2"><label>Carpeta</label></div>
+                                    <div class="col-md-6">
+                                        <input id="toggle-carpeta-log" type="checkbox" ng-checked="archivosHDCarpeta" data-toggle="toggle" data-width="150" data-onstyle="success" data-offstyle="info" data-on="<i class='glyphicon glyphicon-sort-by-alphabet'></i> BAZ" data-off="<i class='glyphicon glyphicon-sort-by-attributes'></i> JVC">
+                                    </div>
+                                </div>
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr><th>Nombre</th><th>Fecha de creación</th><th>Tamaño</th></tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody ng-init="fnServidoresFTPInit('${FTPServers}')">
+                                        <tr ng-show="!archivosHD.length > 0">
+                                            <th scope="row"><span>No se encontraton archivos a mostrar</span></th>
+                                        </tr>
                                         <tr ng-repeat="row in archivosHD">
                                             <th scope="row"><span ng-bind="row.nombre"></span></th>
                                             <td><span ng-bind="row.fechaCreacion"></span></td>
