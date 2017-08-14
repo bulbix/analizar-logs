@@ -6,6 +6,7 @@ var horaFin = "11:00 AM";
 var isShowDownloadModal = false;//para recargar las graficas de descarga de archivos de ftp
 
 //Configuración de la carga de archivos
+
 $("#file-archivo-cifrado").fileinput({
     language: 'es',
     maxFileSize: 1000,
@@ -16,6 +17,15 @@ $("#file-archivo-cifrado").fileinput({
     allowedFileExtensions: ['properties']
 });
 
+$("#file-archivo-pdf").fileinput({
+    language: 'es',
+    maxFileSize: 10000,
+    resizeImage: false,
+    uploadLabel: 'Subir',
+    browseLabel:  'Seleccionar pdf',
+    previewFileIcon: "<i class='glyphicon glyphicon-qrcode'></i>",
+    allowedFileExtensions: ['pdf']
+});
 //SECCION ANGULAR JS
 //'ngAnimate', 'ngSanitize', 'ui.bootstrap'
 var myAngularApp = angular.module('myApp', ['ngCookies', 'ui.bootstrap']).directive('test', function() {
@@ -252,11 +262,14 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
     //CIFRADO PROPERTIES
     
     $scope.file = null;
+    $scope.filePDF = null;
+    $scope.filePDFBase64 = "";
+    $scope.imagenBase64 = "";
 
-     $scope.uploadFile = function(files) {
+    $scope.uploadFile = function(files) {
         $scope.file = files[0];
         console.log('Se selecciona el archivivo.');
-     };
+    };
 
     $scope.uploadFileCifrado = function() {
         console.log('Inicia la subida del archivo');
@@ -287,7 +300,95 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
             loading(false);
         });
     };
-         
+       
+    
+    //HERRAMIENTA DE CONVERSION DE FORMATOS DE ARCHIVOS
+    
+    $scope.uploadFilePDF = function(files) {
+        $scope.filePDF = files[0];
+        console.log('Se selecciona el archivivo pdf.');
+    };
+    
+    $('#file-archivo-pdf').on('fileclear', function(event) {
+        $scope.filePDFBase64 = "";
+        $scope.$apply();
+    });
+     
+    $scope.uploadArchivosFormatoPDF = function(){
+        console.log('Inicia la subida del archivo de conversion pdf');
+        loading(true);
+        var fd = new FormData();
+        fd.append('file', $scope.filePDF);
+        $http({withCredentials: true,
+            method: 'POST',
+            url: base + '/subir/archivo/pdf',
+            data: fd,
+            transformRequest: angular.identity,
+            headers: {'Content-Type': undefined}
+        })
+        .then(function (response){
+            if(null !== response.data && response.data !== '' && response.data.informacion !== null && response.data.informacion !== ""){
+                $scope.filePDFBase64 = response.data.informacion;
+            }
+            else{
+                alert('No se pudo realizar la conversión del archivo.');
+            }
+        }).catch(function(response) {
+            console.error('Error occurred:', response.status, response.data);
+        }).finally(function() {
+            loading(false);
+        });
+    };
+    
+    $scope.ArchivosFormatoConversion = {
+        base: '',
+        origen: 'jpg',
+        formato: {
+            jpg: 'jpg',
+            tiff: 'tiff',
+            base64pdf: 'base64pdf'
+        }
+    };
+    
+    $scope.fnCambiarFormatoConversion = function(formato){
+        console.log("Se cambia el formato a: " + formato);
+        $scope.ArchivosFormatoConversion.origen = formato;
+    };
+    
+    $scope.uploadArchivosFormato = function(){
+        console.log('Inicia la subida del archivo de conversion');
+        loading(true);
+        var fd = new FormData();
+        fd.append('file', $scope.filePDF);
+        $http({withCredentials: true,
+            method: 'POST',
+            url: base + '/convertir/' + $scope.ArchivosFormatoConversion.origen,
+            data: JSON.stringify({base: $scope.ArchivosFormatoConversion.base})
+        })
+        .then(function (response){
+            console.log(response);
+            if(null !== response.data && response.data !== '' && response.data.informacion !== null && response.data.informacion !== ""){
+                $scope.imagenBase64 = response.data.informacion;
+                if($scope.ArchivosFormatoConversion.origen === $scope.ArchivosFormatoConversion.formato.base64pdf){
+                    window.open(base + '/descargar/pdf', '_blank');
+                }
+                else if($scope.ArchivosFormatoConversion.origen === $scope.ArchivosFormatoConversion.formato.jpg){
+                    window.open(base + '/descargar/tiff', '_blank');
+                }
+                else{
+                    window.open(base + '/descargar/jpg', '_blank');
+                }
+            }
+            else{
+                alert('No se pudo realizar la conversión del archivo.');
+            }
+        }).catch(function(response) {
+            console.error('Error occurred:', response.status, response.data);
+        }).finally(function() {
+            loading(false);
+        });
+    };
+    
 });
 
 //Sección de búsquedas
@@ -583,6 +684,10 @@ var mostrarFormBusqueda = function(elem){
 
 //jQuery init
 $(function(){
+    
+    $("#modalHerramientaConversionFormatos").modal("show");
+    
+    
             
     $("#panel-fullscreen").click(function (e) {
         e.preventDefault();
@@ -689,4 +794,5 @@ $(function(){
             }
         ]
     });
+    
 });

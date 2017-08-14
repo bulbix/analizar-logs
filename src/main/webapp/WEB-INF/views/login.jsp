@@ -13,7 +13,6 @@
     <jsp:include page="fragments/header.jsp" />
 </head>
 <body onload='document.loginForm.username.focus();'>
-<!--<div th:replace="fragments/header :: header"/>-->
 <div class="container">
     <div class="row" style="margin-top:20px">
         <div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
@@ -48,6 +47,7 @@
                             <input type="submit" class="btn btn-lg btn-primary btn-block" value="Sign In"/>
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-6">
+                            <a href="<c:url value='/motor' />">Ir al motor de búsqueda</a>
                         </div>
                     </div>
                 </fieldset>

@@ -104,8 +104,6 @@
                             <div class="form-group">
                                 <input id="file-archivo-cifrado" class="file" type="file" onchange="angular.element(this).scope().uploadFile(this.files)">
                             </div>
-                            <!--<input type="file" name="file" onchange="angular.element(this).scope().uploadFile(this.files)" />-->
-                            <!--<input type="submit" value="Enviar" data-dismiss="modal" ng-click="uploadFilesss()"/>-->
                         </form>
                     </div>
                 </div>
@@ -114,3 +112,65 @@
     </div>
 </div>
 
+
+<!-- Modal herramienta de conversion de formatos de archivos-->
+<div class="modal fade" id="modalHerramientaConversionFormatos" tabindex="-1" role="dialog" aria-labelledby="myModalCifradoFormatos">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalCifradoFormatos">Conversión de formato de archivos</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <label>Convertir archivo pdf a Base64</label>
+                        <form class="form-horizontal" ng-submit="uploadArchivosFormatoPDF()" role="form">
+                            <div class="form-group">
+                                <input id="file-archivo-pdf" class="file" type="file" onchange="angular.element(this).scope().uploadFilePDF(this.files)">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-10 col-md-offset-1" ng-show="filePDFBase64">
+                        <textarea class="form-control" rows="2" ng-model="filePDFBase64"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <form class="form-horizontal" ng-submit="uploadArchivosFormato()" role="form">
+                            <div class="row" style="padding-bottom: 15px;">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-primary active" ng-click="fnCambiarFormatoConversion(ArchivosFormatoConversion.formato.jpg)">
+                                        <input type="radio" name="options" autocomplete="off"> JPG a TIFF
+                                    </label>
+                                    <label class="btn btn-primary" ng-click="fnCambiarFormatoConversion(ArchivosFormatoConversion.formato.tiff)">
+                                        <input type="radio" name="options" autocomplete="off"> TIFF a JPG
+                                    </label>
+                                    <label class="btn btn-primary" ng-click="fnCambiarFormatoConversion(ArchivosFormatoConversion.formato.base64pdf)">
+                                        <input type="radio" name="options" autocomplete="off"> Base64 a PDF
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group has-clear">
+                                        <input type="text" class="form-control" placeholder="Base 64" ng-model="ArchivosFormatoConversion.base"/>
+                                        <span class="form-control-clear glyphicon glyphicon-remove form-control-feedback hidden"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" ng-show="imagenBase64">
+                                <textarea class="form-control" rows="2" ng-model="imagenBase64"></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12" style="padding: 0px;">
+                                    <input type="submit" value="Convertir" class="btn btn-default" /> 
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

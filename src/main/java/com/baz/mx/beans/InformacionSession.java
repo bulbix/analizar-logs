@@ -5,7 +5,6 @@
  */
 package com.baz.mx.beans;
 
-import java.util.Iterator;
 import java.util.List;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -20,6 +19,8 @@ public class InformacionSession {
     
     private int idArchivo;
     private List<ArchivoFTP> lista;
+    private byte[] archivoBytes;
+    private String archivoFormato;
 
     public InformacionSession() {
         idArchivo = -1;
@@ -62,5 +63,20 @@ public class InformacionSession {
         }
         return null;
     }
-    
+
+    public byte[] getArchivoBytes() {
+        return archivoBytes;
+    }
+
+    public void setArchivoBytes(byte[] archivoBytes) {
+        this.archivoBytes = archivoBytes;
+    }
+
+    public String getArchivoFormato() {
+        return archivoFormato;
+    }
+
+    public void setArchivoFormato(String archivoFormato) {
+        this.archivoFormato = archivoFormato;
+    }
 }

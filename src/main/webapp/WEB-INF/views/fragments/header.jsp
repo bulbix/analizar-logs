@@ -6,6 +6,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<link rel="icon" type="image/png" href="<c:url value='/images/icon-search.png'/>"/>
 <link href="<c:url value='/webjars/bootstrap/3.3.7/css/bootstrap.min.css'/>" rel="stylesheet" type="text/css">
 <link href="<c:url value='/webjars/font-awesome/4.7.0/css/font-awesome.css'/>" rel="stylesheet" type="text/css">
 <link href="<c:url value='/css/extras/animate.css'/>" rel="stylesheet" type="text/css">

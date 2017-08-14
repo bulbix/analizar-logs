@@ -14,19 +14,23 @@ import com.baz.mx.business.Encryptor;
 import com.baz.mx.business.FTPUtils;
 import com.baz.mx.business.FileSearchOperations;
 import com.baz.mx.business.ListarArchivos;
+import com.baz.mx.business.TransformacionArchivos;
 import com.baz.mx.dto.BusquedaGeneralDTO;
 import com.baz.mx.dto.UsuarioDTO;
 import com.baz.mx.entity.FileUpload;
 import com.baz.mx.exceptions.ArchivoNoSeleccionadoException;
 import com.baz.mx.exceptions.FTPConexionException;
 import com.baz.mx.request.ActualizarArchivoFTPRequest;
+import com.baz.mx.request.ArchivoBase64;
 import com.baz.mx.request.BusquedaLineaRequest;
 import com.baz.mx.request.CifradoCadenaRequest;
 import com.baz.mx.request.ObtenerArchivosFTPRequest;
 import com.baz.mx.response.BusquedaGeneralResponse;
 import com.baz.mx.response.CifradoCadenaResponse;
 import com.baz.mx.utils.Constantes;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,10 +44,13 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -268,6 +275,97 @@ public class MotorController {
         }
     }
     
+    @PostMapping(value = "/subir/archivo/pdf", produces = "application/json")
+    @ResponseBody
+    public BusquedaGeneralResponse subirArchivoPDF(@RequestParam(value = "file", required = false) MultipartFile file) {
+        try {
+            String filename = file.getOriginalFilename();
+            byte[] bytes = file.getBytes();
+            LOGGER.info("Se convierte pdf a base64: " + filename);
+            String res = TransformacionArchivos.convertirPDFABase64(bytes);
+            return new BusquedaGeneralResponse(res);
+        } catch (IOException ex) {
+            LOGGER.info("No se pudo covertir el archivo.", ex);
+            return new BusquedaGeneralResponse();
+        }
+    }
+    
+    
+    @PostMapping(value = "/convertir/{origen}", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public BusquedaGeneralResponse convertirArchivo(@PathVariable String origen, @RequestBody ArchivoBase64 archivo) throws IOException {
+        String convert = null;
+        switch(origen){
+            case "base64pdf":
+                LOGGER.info("se convierte de base64 a pdf.");
+                sessionData.setArchivoBytes(TransformacionArchivos.convertirBase64APDF(archivo.getBase()));
+                sessionData.setArchivoFormato("pdf");
+                return new BusquedaGeneralResponse("OK");
+            case "jpg":
+                LOGGER.info("se convierte de jpg a tiff.");
+                convert = TransformacionArchivos.convertJPGBase64ToTIFFBase64(archivo.getBase());
+                sessionData.setArchivoBytes(convert.getBytes());
+                sessionData.setArchivoFormato("tiff");
+                break;
+            case "tiff":
+                LOGGER.info("se convierte de tiff a jpg.");
+                convert = TransformacionArchivos.convertTIFFBase64ToJPGBase64(archivo.getBase());
+                sessionData.setArchivoBytes(convert.getBytes());
+                sessionData.setArchivoFormato("jpg");
+                break;
+        }
+        return new BusquedaGeneralResponse(convert);
+    }
+    
+    @GetMapping(value = "/descargar/{tipoArchio:pdf|tiff|jpg}")
+    public void descargarArchivo(HttpServletResponse response, @PathVariable String tipoArchio) throws IOException {
+        String respuestaDefault = "<h2>No se ha encontrado el archivo solicitado</h2>";
+//        Resource resource = new ByteArrayResource(respuestaDefault.getBytes());
+        int size = respuestaDefault.length();
+//        HttpHeaders headers = new HttpHeaders();
+        byte[] contents = respuestaDefault.getBytes();
+        MediaType mediaType = MediaType.TEXT_HTML;
+        if(tipoArchio.equals(sessionData.getArchivoFormato())){
+            if(null != sessionData.getArchivoBytes() && sessionData.getArchivoBytes().length > 0){
+                contents = sessionData.getArchivoBytes();
+                size = sessionData.getArchivoBytes().length;
+                LOGGER.info("Se solicita el tipo de archivo correcto: " + tipoArchio + ", con un tamaño de: " + size);
+                switch(tipoArchio){
+                    case "pdf":
+                        mediaType = MediaType.APPLICATION_PDF;
+                        break;
+                    case "tiff":
+                        mediaType = MediaType.APPLICATION_OCTET_STREAM;
+                        break;
+                    case "jpg":
+                        mediaType = MediaType.IMAGE_JPEG;
+                        break;
+                }
+            }else{
+                LOGGER.info("El contenido en memoria es 0.");
+            }
+        }
+        else{
+            LOGGER.info("No se solicito el archivo correcto: " + sessionData.getArchivoFormato() + ", solicitado: " + tipoArchio);
+        }
+        response.setContentType(mediaType.toString());
+        response.setHeader("Content-Disposition", String.format("inline; filename=\"Archivo." + tipoArchio +"\""));
+        response.setContentLength(size);
+        InputStream is = new ByteArrayInputStream(contents);
+        FileCopyUtils.copy(is, response.getOutputStream());
+//        headers.setContentType(mediaType);
+//        headers.setContentDispositionFormData("archivo", "archivo." + tipoArvhio);
+//        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+//        LOGGER.info("El tamaño del archivo es: " + size);
+        
+//        return new ResponseEntity<byte[]>(contents, headers, HttpStatus.OK);
+   
+//        return ResponseEntity.ok()
+//            .header(headers)
+//            .contentLength(size)
+//            .contentType(mediaType)
+//            .body(resource);
+    }
     
     private void validaPathSeleccionado(String path) throws ArchivoNoSeleccionadoException {
         if (null == path) {
