@@ -43,6 +43,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -317,30 +319,32 @@ public class MotorController {
         return new BusquedaGeneralResponse(convert);
     }
     
-    @GetMapping(value = "/descargar/{tipoArchio:pdf|tiff|jpg}")
-    public void descargarArchivo(HttpServletResponse response, @PathVariable String tipoArchio) throws IOException {
+    @GetMapping(value = "/descargar/{tipoArchio:pdf|tiff|jpg}", produces = {MediaType.APPLICATION_PDF_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE})
+    public ResponseEntity<byte[]> descargarArchivo(HttpServletResponse response, @PathVariable String tipoArchio) throws IOException {
         String respuestaDefault = "<h2>No se ha encontrado el archivo solicitado</h2>";
-//        Resource resource = new ByteArrayResource(respuestaDefault.getBytes());
         int size = respuestaDefault.length();
-//        HttpHeaders headers = new HttpHeaders();
         byte[] contents = respuestaDefault.getBytes();
         MediaType mediaType = MediaType.TEXT_HTML;
+        HttpHeaders headers = new HttpHeaders();
         if(tipoArchio.equals(sessionData.getArchivoFormato())){
             if(null != sessionData.getArchivoBytes() && sessionData.getArchivoBytes().length > 0){
                 contents = sessionData.getArchivoBytes();
-                size = sessionData.getArchivoBytes().length;
                 LOGGER.info("Se solicita el tipo de archivo correcto: " + tipoArchio + ", con un tamaño de: " + size);
                 switch(tipoArchio){
                     case "pdf":
                         mediaType = MediaType.APPLICATION_PDF;
                         break;
                     case "tiff":
+                        contents = TransformacionArchivos.decodeBase64(new String(contents));
                         mediaType = MediaType.APPLICATION_OCTET_STREAM;
+                        headers.setContentDispositionFormData("attachment", "imagen.tiff");
                         break;
                     case "jpg":
+                        contents = TransformacionArchivos.decodeBase64(new String(contents));
                         mediaType = MediaType.IMAGE_JPEG;
                         break;
                 }
+                size = contents.length;
             }else{
                 LOGGER.info("El contenido en memoria es 0.");
             }
@@ -348,23 +352,9 @@ public class MotorController {
         else{
             LOGGER.info("No se solicito el archivo correcto: " + sessionData.getArchivoFormato() + ", solicitado: " + tipoArchio);
         }
-        response.setContentType(mediaType.toString());
-        response.setHeader("Content-Disposition", String.format("inline; filename=\"Archivo." + tipoArchio +"\""));
-        response.setContentLength(size);
-        InputStream is = new ByteArrayInputStream(contents);
-        FileCopyUtils.copy(is, response.getOutputStream());
-//        headers.setContentType(mediaType);
-//        headers.setContentDispositionFormData("archivo", "archivo." + tipoArvhio);
-//        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
-//        LOGGER.info("El tamaño del archivo es: " + size);
-        
-//        return new ResponseEntity<byte[]>(contents, headers, HttpStatus.OK);
-   
-//        return ResponseEntity.ok()
-//            .header(headers)
-//            .contentLength(size)
-//            .contentType(mediaType)
-//            .body(resource);
+        headers.setContentType(mediaType);
+        headers.setContentLength(size);
+        return new ResponseEntity<>(contents, headers, HttpStatus.OK);
     }
     
     private void validaPathSeleccionado(String path) throws ArchivoNoSeleccionadoException {

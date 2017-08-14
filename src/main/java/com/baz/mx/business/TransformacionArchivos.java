@@ -28,6 +28,10 @@ import org.apache.log4j.Logger;
 public class TransformacionArchivos {
 
     private static final Logger LOGGER = Logger.getLogger(TransformacionArchivos.class);
+    
+    public static synchronized  byte[] decodeBase64(String base64){
+        return Base64.decodeBase64(base64.getBytes());
+    }
 
     public static synchronized  byte[] convertirBase64APDF(String pdfBase64) {
         LOGGER.info("Se realiza la conversión del archivo pdf a Base 64.");
