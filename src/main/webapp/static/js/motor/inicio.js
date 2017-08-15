@@ -19,7 +19,7 @@ $("#file-archivo-cifrado").fileinput({
 
 $("#file-archivo-pdf").fileinput({
     language: 'es',
-    maxFileSize: 10000,
+    maxFileSize: 5000,
     resizeImage: false,
     uploadLabel: 'Subir',
     browseLabel:  'Seleccionar pdf',
@@ -212,6 +212,9 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
     };
     
     //SECCION DE HERRAMIENTAS
+    $('#modalHerramientaCifradoProperties').on('hide.bs.modal', function (e) {
+        $('#modalHerramientaCifradoProperties').find('.fileinput-remove-button').trigger('click');
+    });
     $scope.herrObjCifrar = {
         cadena: "",
         cifrar: true,
@@ -303,7 +306,14 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
        
     
     //HERRAMIENTA DE CONVERSION DE FORMATOS DE ARCHIVOS
-    
+    $('#modalHerramientaConversionFormatos').on('hide.bs.modal', function (e) {
+        $scope.filePDFBase64 = "";
+        $scope.imagenBase64 = "";
+        $scope.ArchivosFormatoConversion.base = "";
+        $scope.$apply();
+        $('#modalHerramientaConversionFormatos').find('.fileinput-remove-button').trigger('click');
+        
+    });
     $scope.uploadFilePDF = function(files) {
         $scope.filePDF = files[0];
         console.log('Se selecciona el archivivo pdf.');
@@ -384,6 +394,7 @@ myAngularApp.controller('InformacionGeneralController', function ($scope, $http,
             }
         }).catch(function(response) {
             console.error('Error occurred:', response.status, response.data);
+            alert('Ocurrió un error en la conversión del archivo.');
         }).finally(function() {
             loading(false);
         });
@@ -684,10 +695,6 @@ var mostrarFormBusqueda = function(elem){
 
 //jQuery init
 $(function(){
-    
-    $("#modalHerramientaConversionFormatos").modal("show");
-    
-    
             
     $("#panel-fullscreen").click(function (e) {
         e.preventDefault();

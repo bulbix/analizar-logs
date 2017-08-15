@@ -124,7 +124,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-10 col-md-offset-1">
-                        <label>Convertir archivo pdf a Base64</label>
+                        <h4>Convertir archivo pdf a Base64</h4>
                         <form class="form-horizontal" ng-submit="uploadArchivosFormatoPDF()" role="form">
                             <div class="form-group">
                                 <input id="file-archivo-pdf" class="file" type="file" onchange="angular.element(this).scope().uploadFilePDF(this.files)">
@@ -132,7 +132,16 @@
                         </form>
                     </div>
                     <div class="col-md-10 col-md-offset-1" ng-show="filePDFBase64">
-                        <textarea class="form-control" rows="2" ng-model="filePDFBase64"></textarea>
+                        <label>Respuesta</label>
+                        <div class="form-group has-clear">
+                            <input type="text" class="form-control" ng-model="filePDFBase64"/>
+                            <span class="form-control-clear glyphicon glyphicon-remove form-control-feedback hidden"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <h4>Conversión de formatos</h4>
                     </div>
                 </div>
                 <div class="row">
@@ -160,7 +169,11 @@
                                 </div>
                             </div>
                             <div class="col-md-12" ng-show="imagenBase64">
-                                <textarea class="form-control" rows="2" ng-model="imagenBase64"></textarea>
+                                <label>Respuesta</label>
+                                <div class="form-group has-clear">
+                                    <input type="text" class="form-control" ng-model="imagenBase64"/>
+                                    <span class="form-control-clear glyphicon glyphicon-remove form-control-feedback hidden"></span>
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-12" style="padding: 0px;">
