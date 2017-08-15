@@ -5,6 +5,7 @@
  */
 package com.baz.mx.controller;
 
+import com.baz.mx.annotations.ValidarPath;
 import com.baz.mx.beans.ArchivoFTP;
 import com.baz.mx.beans.ArchivosEnDescargaFTP;
 import com.baz.mx.beans.InformacionSession;
@@ -28,9 +29,7 @@ import com.baz.mx.request.ObtenerArchivosFTPRequest;
 import com.baz.mx.response.BusquedaGeneralResponse;
 import com.baz.mx.response.CifradoCadenaResponse;
 import com.baz.mx.utils.Constantes;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,14 +42,12 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -134,11 +131,11 @@ public class MotorController {
     
     @PostMapping(value= "obtener/informacion/usuario", consumes = "application/json", produces = "application/json")
     @ResponseBody
+    @ValidarPath
     public String getUserInformation(@RequestBody UsuarioDTO usuario) throws ArchivoNoSeleccionadoException{
         LOGGER.info("json recibido: " + usuario);
         String path = sessionData.getRutaArchivoId(sessionData.getIdArchivo());
         LOGGER.info("path a consultar: " + path);
-        validaPathSeleccionado(path);
         switch(usuario.getTipo()){
             case "usuario":
                 return FileSearchOperations.procesarDetalleUsuario(Paths.get(path), usuario.getNombreUsuario());
@@ -153,11 +150,11 @@ public class MotorController {
     
     @PostMapping(value= "busqueda/general", consumes = "application/json", produces = {"application/json"})
     @ResponseBody
+    @ValidarPath
     public BusquedaGeneralResponse getGeneralInformation(@RequestBody BusquedaGeneralDTO infoBusqueda) throws ArchivoNoSeleccionadoException{
         LOGGER.info("json recibido: " + infoBusqueda);
         String path = sessionData.getRutaArchivoId(sessionData.getIdArchivo());
         LOGGER.info("path a consultar: " + path);
-        validaPathSeleccionado(path);
         String respuesta = null;
         //Solo usuario
         if (infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()) {//Solo usuario
@@ -191,11 +188,11 @@ public class MotorController {
     
     @PostMapping(value= "busqueda/linea", consumes = "application/json", produces = {"application/json"})
     @ResponseBody
+    @ValidarPath
     public BusquedaGeneralResponse getLineaInformation(@RequestBody BusquedaLineaRequest infoBusqueda) throws ArchivoNoSeleccionadoException{
         LOGGER.info("json recibido: " + infoBusqueda);
         String path = sessionData.getRutaArchivoId(sessionData.getIdArchivo());
         LOGGER.info("path a consultar: " + path);
-        validaPathSeleccionado(path);
         return new BusquedaGeneralResponse(FileSearchOperations.procesarLibreDetalle(Paths.get(path), infoBusqueda.getLinea()));
     }
     
@@ -292,7 +289,6 @@ public class MotorController {
         }
     }
     
-    
     @PostMapping(value = "/convertir/{origen}", consumes = "application/json", produces = "application/json")
     @ResponseBody
     public BusquedaGeneralResponse convertirArchivo(@PathVariable String origen, @RequestBody ArchivoBase64 archivo) throws IOException {
@@ -355,12 +351,6 @@ public class MotorController {
         headers.setContentType(mediaType);
         headers.setContentLength(size);
         return new ResponseEntity<>(contents, headers, HttpStatus.OK);
-    }
-    
-    private void validaPathSeleccionado(String path) throws ArchivoNoSeleccionadoException {
-        if (null == path) {
-            throw new ArchivoNoSeleccionadoException("No se ha definido un archivo a procesar.");
-        }
     }
     
 }
