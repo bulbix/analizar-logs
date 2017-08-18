@@ -6,7 +6,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!--Formulario de busqueda general-->
-<div class="row div-busquedas divBusquedaGeneral" style="display: none;">
+<div class="row div-busquedas divBusquedaGeneral" style="display: block;">
     <div class="col-md-12">
         <div class="center">
             <div class="row">

@@ -17,18 +17,18 @@ import java.io.IOException;
 @Component
 public class MyAccessDeniedHandler implements AccessDeniedHandler {
 
-    private static Logger logger = LoggerFactory.getLogger(MyAccessDeniedHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MyAccessDeniedHandler.class);
 
     @Override
     public void handle(HttpServletRequest httpServletRequest,
-                       HttpServletResponse httpServletResponse,
-                       AccessDeniedException e) throws IOException, ServletException {
+            HttpServletResponse httpServletResponse,
+            AccessDeniedException e) throws IOException, ServletException {
 
         Authentication auth
                 = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null) {
-            logger.info("User '" + auth.getName()
+            LOGGER.info("User '" + auth.getName()
                     + "' attempted to access the protected URL: "
                     + httpServletRequest.getRequestURI());
         }

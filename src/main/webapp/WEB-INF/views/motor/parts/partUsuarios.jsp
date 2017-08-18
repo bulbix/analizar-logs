@@ -7,7 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <!--Formulario busqueda usuario-->
-<div class="row div-busquedas divBusquedaUsuarios" style="display: block;">
+<div class="row div-busquedas divBusquedaUsuarios" style="display: none;">
     <div class="col-md-12">
         <div class="center">
             <div class="row">

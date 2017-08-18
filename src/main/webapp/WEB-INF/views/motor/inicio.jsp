@@ -116,9 +116,7 @@
                                 <h4 class="modal-title" id="myModalLabelFTP">Archivos de servidor FTP</h4>
                                 <div class="row">
                                     <div class="col-md-5">
-                                        <select class="form-control">
-                                            <option ng-repeat="item in servidoresFTP" ng-click="obtenerArchivosFTP(item.ip)">{{item.ip}}</option>
-                                        </select>
+                                        <select class="form-control" ng-model="item" ng-options="o.ip as o.ip for o in servidoresFTP" ng-change="obtenerArchivosFTP(item)">{{item}}</select>
                                     </div>
                                     <div class="col-sm-3">
                                         <div class="btn-group" data-toggle="buttons">

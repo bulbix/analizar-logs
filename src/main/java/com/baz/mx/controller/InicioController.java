@@ -22,7 +22,7 @@ public class InicioController {
     @Value("${welcome.message:test}")
     private final String message = "Hello World";
 
-    @RequestMapping(value = {"","/welcome"})
+    @RequestMapping(value = {""})
     public String welcome(Map<String, Object> model, Principal principal) {
         model.put("message", this.message);
         model.put("usuario", principal.getName());
