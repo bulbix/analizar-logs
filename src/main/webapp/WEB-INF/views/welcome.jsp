@@ -14,6 +14,8 @@
                 <h2>Message: ${message}</h2>
                 <h2>Bienvenido: ${usuario}</h2>
             </div>
+                <a href="<c:url value="/admin"/>">admin</a>
+                <a href="<c:url value="/user"/>">user</a>
         </div>
         <jsp:include page="fragments/footer.jsp" />
     </body>

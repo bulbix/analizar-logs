@@ -43,7 +43,7 @@ public class Registro {
     public boolean buscarRutaHilo(String ruta, String hilo){
         for (int i = registro.size() -1 ; i > -1; i--) {
             String line = registro.get(i);
-            if (line.matches(".*"+SINTAXIS_RUTA+".*") && line.contains(hilo)) {
+            if (line.matches(SINTAXIS_RUTA) && line.contains(hilo)) {
                 String hiloLinea = getHiloCompletoDeLinea(line);
                 if(hilo.equals(hiloLinea)){
                     if(getRutaDeLinea(line).contains(ruta)){

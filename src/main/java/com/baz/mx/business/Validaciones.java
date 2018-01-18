@@ -36,16 +36,6 @@ public class Validaciones {
         return null;
     }
 
-    public static synchronized String getHiloDeLinea(String line) {
-        String regex = ".*(" + SINTAXIS_HILO + ")(\\d+).*";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(line);
-        if (matcher.find()) {
-            return matcher.group(2);
-        }
-        return null;
-    }
-
     public static synchronized String getHiloCompletoDeLinea(String line) {
         String regex = ".*(" + SINTAXIS_HILO + ")(\\d+).*";
         Pattern pattern = Pattern.compile(regex);
@@ -161,7 +151,7 @@ public class Validaciones {
                 String hiloLinea = getHiloCompletoDeLinea(line);
                 if(hilo.equals(hiloLinea)){
                     listaAux.add(line);
-                    if(line.contains(SINTAXIS_RUTA)){
+                    if(line.matches(SINTAXIS_RUTA)){
                         pos.add(listaAux.size() - 1);
                     }
                 }

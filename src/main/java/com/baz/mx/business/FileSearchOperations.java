@@ -37,7 +37,7 @@ public class FileSearchOperations {
     public static final String SINTAXIS_USUARIO = " - Alias: ";
     public static final String SINTAXIS_TR = "Transaccion ";
     public static final String SINTAXIS_HILO = "HTTP-CRED-|Thread-";
-    public static final String SINTAXIS_RUTA = "PathInterceptor:2";
+    public static final String SINTAXIS_RUTA = ".*PathInterceptor:\\d+\\s-\\s/\\w+/.*";
     public static final String SINTAXIS_INFO_CLIENTE = "BusquedaPersonaImpl:";
     public static final String SINTAXIS_INFO_CLIENTE_FULL = ".*BusquedaPersonaImpl:\\d+.*";
     public static final String SINTAXIS_HILO_HIJO = ".*PrintThrowThreadConcurrentTaskExecutor:\\d+ - El hilo.*";
@@ -332,7 +332,7 @@ public class FileSearchOperations {
                 LOGGER.info("Buscando la ruta: " + fieldRuta);
                 while (it.hasNext()) {
                     String line = it.nextLine();
-                    if (line.contains(SINTAXIS_RUTA)) {
+                    if (line.matches(SINTAXIS_RUTA)) {
                         rutaCompleta = getRutaDeLinea(line);
                         if (null != rutaCompleta && rutaCompleta.contains(fieldRuta)) {
                             boolean isRango = true;
@@ -525,6 +525,7 @@ public class FileSearchOperations {
         String hilo = null;
         try {
             it = FileUtils.lineIterator(path.toFile(), ENCODING.name());
+            texto = texto.trim();
             LOGGER.info("Buscando el texto: " + texto);
             while (it.hasNext()) {
                 String line = it.nextLine();
@@ -533,7 +534,11 @@ public class FileSearchOperations {
                     hilo = getHiloCompletoDeLinea(line);
                     escribirTextPaneMenosUnaLinea(salida, registro.getRegistro(), hilo);//Antes
                     salida.append("<b>").append(line).append("</b>").append(NEW_LINE);
-                    lineasSig = true;
+                    if (isEndOperationLine(line, hilo)) {//Fin de la operacion
+                        break;
+                    }else{
+                        lineasSig = true;
+                    }
                 } else if (lineasSig) {
                     if (numLinSig < MAX_LINEAS_POR_HILO) {
                         if (line.contains(hilo)) {
