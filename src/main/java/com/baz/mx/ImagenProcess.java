@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
-import org.geotoolkit.image.io.plugin.RawTiffImageReader;
+//import org.geotoolkit.image.io.plugin.RawTiffImageReader;
 
 /**
  *
@@ -19,7 +19,7 @@ import org.geotoolkit.image.io.plugin.RawTiffImageReader;
 public class ImagenProcess {
     public static void main(String[] args) throws IOException {
         IIORegistry registry = IIORegistry.getDefaultInstance();   
-        registry.registerServiceProvider(new RawTiffImageReader.Spi());            
+        //registry.registerServiceProvider(new RawTiffImageReader.Spi());            
 
         String[] a = ImageIO.getReaderFileSuffixes();    
         System.out.println("Iniciando...");

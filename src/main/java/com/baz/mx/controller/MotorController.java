@@ -15,6 +15,7 @@ import com.baz.mx.business.Encryptor;
 import com.baz.mx.business.FTPUtils;
 import com.baz.mx.business.FileSearchOperations;
 import com.baz.mx.business.ListarArchivos;
+import com.baz.mx.business.SearchOperations;
 import com.baz.mx.business.TransformacionArchivos;
 import com.baz.mx.dto.BusquedaGeneralDTO;
 import com.baz.mx.dto.UsuarioDTO;
@@ -79,6 +80,8 @@ public class MotorController {
     private DescargarArchivoFTP descargarFTP;
     @Autowired
     private ArchivosEnDescargaFTP descargnadoftp;
+    
+    @Autowired SearchOperations searchOperations;
     
     @GetMapping(path = {"/", ""})
     public String inicio(HttpServletRequest request, HttpServletResponse response, HttpSession session, ModelMap model){
@@ -171,7 +174,7 @@ public class MotorController {
         //solo libre
         else if(!infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
             LOGGER.info("Se procesa solo libre.");
-            respuesta = FileSearchOperations.procesarSoloLibre(Paths.get(path), infoBusqueda.getTextoLibre().getTexto(), infoBusqueda.getRangoTiempo().isVisible(), infoBusqueda.getRangoTiempo().isVisible() ? infoBusqueda.getRangoTiempo().getTexto().split("-"): null);
+            respuesta = searchOperations.procesarSoloLibre(infoBusqueda.getTextoLibre().getTexto(), 100 , "logbaz-2018.05.22");
         }
         //usuario y tr
         else if(infoBusqueda.getUsuario().isVisible() && infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
@@ -193,7 +196,7 @@ public class MotorController {
         LOGGER.info("json recibido: " + infoBusqueda);
         String path = sessionData.getRutaArchivoId(sessionData.getIdArchivo());
         LOGGER.info("path a consultar: " + path);
-        return new BusquedaGeneralResponse(FileSearchOperations.procesarLibreDetalle(Paths.get(path), infoBusqueda.getLinea()));
+        return new BusquedaGeneralResponse(searchOperations.procesarLibreDetalle(infoBusqueda.getLinea(),"logbaz-2018.05.22"));
     }
     
     @PostMapping(value= "obtener/archivos/ftp", consumes = "application/json", produces = {"application/json"})
