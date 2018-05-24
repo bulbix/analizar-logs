@@ -174,7 +174,7 @@ public class MotorController {
         //solo libre
         else if(!infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
             LOGGER.info("Se procesa solo libre.");
-            respuesta = searchOperations.procesarSoloLibre(infoBusqueda.getTextoLibre().getTexto(), 100 , "logbaz-2018.05.22");
+            respuesta = searchOperations.procesarSoloLibre(infoBusqueda.getTextoLibre().getTexto(), 100 , searchOperations.getIndices());
         }
         //usuario y tr
         else if(infoBusqueda.getUsuario().isVisible() && infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
@@ -196,7 +196,7 @@ public class MotorController {
         LOGGER.info("json recibido: " + infoBusqueda);
         String path = sessionData.getRutaArchivoId(sessionData.getIdArchivo());
         LOGGER.info("path a consultar: " + path);
-        return new BusquedaGeneralResponse(searchOperations.procesarLibreDetalle(infoBusqueda.getLinea(),"logbaz-2018.05.22"));
+        return new BusquedaGeneralResponse(searchOperations.procesarLibreDetalle(infoBusqueda.getLinea(), searchOperations.getIndices()));
     }
     
     @PostMapping(value= "obtener/archivos/ftp", consumes = "application/json", produces = {"application/json"})
