@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,13 +21,23 @@ import com.bancoazteca.logES.LogService;
 public class SearchOperations {
 
 	@Autowired LogService logBazES;
+	Logger log = LoggerFactory.getLogger(SearchOperations.class);
 
 	public String procesarSoloLibre(String fieldLibre, Integer numRegistros, String... indices) {
 		List<Map<String,Object>> documents  = logBazES.searchTerm(fieldLibre, numRegistros, indices);
 		
-		return documents.stream().map(map -> 
-				String.format("[#| %s %s %s %s - %s |#]", map.get("@logdate"),map.get("loglevel"),map.get("thread"),map.get("classname"),map.get("msgbody")))
-				.collect(Collectors.joining("\n"));
+		StringBuilder result = new StringBuilder();
+		
+		for(Map<String,Object> doc: documents) {
+			
+			
+			DateTime logdate = new DateTime(doc.get("@logdate"));
+			String line = String.format("[#| %s %s  %s %s - %s", logdate.toString("yyyy-MM-dd HH:mm:ss,SSS"),doc.get("loglevel"),doc.get("thread"),doc.get("classname"),doc.get("msgbody"));
+			log.info(line);
+			result.append(line + "\n");
+		}
+		
+		return result.toString();
 	}
 	
 	public String procesarLibreDetalle(String linea, String... indices) {

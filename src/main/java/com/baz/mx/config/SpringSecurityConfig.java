@@ -28,32 +28,34 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+    	
+    	http.csrf().disable().authorizeRequests().anyRequest().permitAll();
 
-        http.csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/motor/**").permitAll()
-                .antMatchers("/pruebas/**").permitAll()
-                .antMatchers("/admin/**").hasAnyRole("ADMIN")
-                .antMatchers("/user/**").hasAnyRole("USER")
-                .antMatchers("/inicio").hasAnyRole("USER", "ADMIN")
-                .anyRequest().authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/login")
-                .defaultSuccessUrl("/", true)
-                .usernameParameter("username")
-                .passwordParameter("password")
-                .permitAll()
-                .and()
-                .logout()
-                .permitAll()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/login").and().exceptionHandling()
-                .and()
-                .exceptionHandling().accessDeniedHandler(accessDeniedHandler);
-        http.sessionManagement().maximumSessions(1);
-        http.sessionManagement().invalidSessionUrl("/invalidSession");
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+//        http.csrf().disable()
+//                .authorizeRequests()
+//                .antMatchers("/motor/**").permitAll()
+//                .antMatchers("/pruebas/**").permitAll()
+//                .antMatchers("/admin/**").hasAnyRole("ADMIN")
+//                .antMatchers("/user/**").hasAnyRole("USER")
+//                .antMatchers("/inicio").hasAnyRole("USER", "ADMIN")
+//                .anyRequest().authenticated()
+//                .and()
+//                .formLogin()
+//                .loginPage("/login")
+//                .defaultSuccessUrl("/", true)
+//                .usernameParameter("username")
+//                .passwordParameter("password")
+//                .permitAll()
+//                .and()
+//                .logout()
+//                .permitAll()
+//                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+//                .logoutSuccessUrl("/login").and().exceptionHandling()
+//                .and()
+//                .exceptionHandling().accessDeniedHandler(accessDeniedHandler);
+//        http.sessionManagement().maximumSessions(1);
+//        http.sessionManagement().invalidSessionUrl("/invalidSession");
+//        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
     }
 
 

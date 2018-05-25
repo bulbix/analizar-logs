@@ -174,7 +174,7 @@ public class MotorController {
         //solo libre
         else if(!infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
             LOGGER.info("Se procesa solo libre.");
-            respuesta = searchOperations.procesarSoloLibre(infoBusqueda.getTextoLibre().getTexto(), 100 , searchOperations.getIndices());
+            respuesta = searchOperations.procesarSoloLibre(infoBusqueda.getTextoLibre().getTexto(), 100, searchOperations.getIndices());
         }
         //usuario y tr
         else if(infoBusqueda.getUsuario().isVisible() && infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
