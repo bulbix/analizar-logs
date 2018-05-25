@@ -16,7 +16,7 @@ import com.baz.mx.business.FTPUtils;
 import com.baz.mx.business.FileSearchOperations;
 import com.baz.mx.business.ListarArchivos;
 import com.baz.mx.business.SearchOperations;
-import com.baz.mx.business.TransformacionArchivos;
+//import com.baz.mx.business.TransformacionArchivos;
 import com.baz.mx.dto.BusquedaGeneralDTO;
 import com.baz.mx.dto.UsuarioDTO;
 import com.baz.mx.entity.FileUpload;
@@ -174,7 +174,8 @@ public class MotorController {
         //solo libre
         else if(!infoBusqueda.getUsuario().isVisible() && !infoBusqueda.getTrAlnova().isVisible() && infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
             LOGGER.info("Se procesa solo libre.");
-            respuesta = searchOperations.procesarSoloLibre(infoBusqueda.getTextoLibre().getTexto(), 100, searchOperations.getIndices());
+            String[] rangoTiempo = infoBusqueda.getRangoTiempo().isVisible() ? infoBusqueda.getRangoTiempo().getTexto().split("-"): null;
+            respuesta = searchOperations.procesarSoloLibre(infoBusqueda.getTextoLibre().getTexto(), 500, rangoTiempo, searchOperations.getIndices());
         }
         //usuario y tr
         else if(infoBusqueda.getUsuario().isVisible() && infoBusqueda.getTrAlnova().isVisible() && !infoBusqueda.getTextoLibre().isVisible() && !infoBusqueda.getRuta().isVisible()){
@@ -277,83 +278,83 @@ public class MotorController {
         }
     }
     
-    @PostMapping(value = "/subir/archivo/pdf", produces = "application/json")
-    @ResponseBody
-    public BusquedaGeneralResponse subirArchivoPDF(@RequestParam(value = "file", required = false) MultipartFile file) {
-        try {
-            String filename = file.getOriginalFilename();
-            byte[] bytes = file.getBytes();
-            LOGGER.info("Se convierte pdf a base64: " + filename);
-            String res = TransformacionArchivos.convertirPDFABase64(bytes);
-            return new BusquedaGeneralResponse(res);
-        } catch (IOException ex) {
-            LOGGER.info("No se pudo covertir el archivo.", ex);
-            return new BusquedaGeneralResponse();
-        }
-    }
+//    @PostMapping(value = "/subir/archivo/pdf", produces = "application/json")
+//    @ResponseBody
+//    public BusquedaGeneralResponse subirArchivoPDF(@RequestParam(value = "file", required = false) MultipartFile file) {
+//        try {
+//            String filename = file.getOriginalFilename();
+//            byte[] bytes = file.getBytes();
+//            LOGGER.info("Se convierte pdf a base64: " + filename);
+//            String res = TransformacionArchivos.convertirPDFABase64(bytes);
+//            return new BusquedaGeneralResponse(res);
+//        } catch (IOException ex) {
+//            LOGGER.info("No se pudo covertir el archivo.", ex);
+//            return new BusquedaGeneralResponse();
+//        }
+//    }
+//    
+//    @PostMapping(value = "/convertir/{origen}", consumes = "application/json", produces = "application/json")
+//    @ResponseBody
+//    public BusquedaGeneralResponse convertirArchivo(@PathVariable String origen, @RequestBody ArchivoBase64 archivo) throws IOException {
+//        String convert = null;
+//        switch(origen){
+//            case "base64pdf":
+//                LOGGER.info("se convierte de base64 a pdf.");
+//                sessionData.setArchivoBytes(TransformacionArchivos.convertirBase64APDF(archivo.getBase()));
+//                sessionData.setArchivoFormato("pdf");
+//                return new BusquedaGeneralResponse("OK");
+//            case "jpg":
+//                LOGGER.info("se convierte de jpg a tiff.");
+//                convert = TransformacionArchivos.convertJPGBase64ToTIFFBase64(archivo.getBase());
+//                sessionData.setArchivoBytes(convert.getBytes());
+//                sessionData.setArchivoFormato("tiff");
+//                break;
+//            case "tiff":
+//                LOGGER.info("se convierte de tiff a jpg.");
+//                convert = TransformacionArchivos.convertTIFFBase64ToJPGBase64(archivo.getBase());
+//                sessionData.setArchivoBytes(convert.getBytes());
+//                sessionData.setArchivoFormato("jpg");
+//                break;
+//        }
+//        return new BusquedaGeneralResponse(convert);
+//    }
     
-    @PostMapping(value = "/convertir/{origen}", consumes = "application/json", produces = "application/json")
-    @ResponseBody
-    public BusquedaGeneralResponse convertirArchivo(@PathVariable String origen, @RequestBody ArchivoBase64 archivo) throws IOException {
-        String convert = null;
-        switch(origen){
-            case "base64pdf":
-                LOGGER.info("se convierte de base64 a pdf.");
-                sessionData.setArchivoBytes(TransformacionArchivos.convertirBase64APDF(archivo.getBase()));
-                sessionData.setArchivoFormato("pdf");
-                return new BusquedaGeneralResponse("OK");
-            case "jpg":
-                LOGGER.info("se convierte de jpg a tiff.");
-                convert = TransformacionArchivos.convertJPGBase64ToTIFFBase64(archivo.getBase());
-                sessionData.setArchivoBytes(convert.getBytes());
-                sessionData.setArchivoFormato("tiff");
-                break;
-            case "tiff":
-                LOGGER.info("se convierte de tiff a jpg.");
-                convert = TransformacionArchivos.convertTIFFBase64ToJPGBase64(archivo.getBase());
-                sessionData.setArchivoBytes(convert.getBytes());
-                sessionData.setArchivoFormato("jpg");
-                break;
-        }
-        return new BusquedaGeneralResponse(convert);
-    }
-    
-    @GetMapping(value = "/descargar/{tipoArchio:pdf|tiff|jpg}", produces = {MediaType.APPLICATION_PDF_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE})
-    public ResponseEntity<byte[]> descargarArchivo(HttpServletResponse response, @PathVariable String tipoArchio) throws IOException {
-        String respuestaDefault = "<h2>No se ha encontrado el archivo solicitado</h2>";
-        int size = respuestaDefault.length();
-        byte[] contents = respuestaDefault.getBytes();
-        MediaType mediaType = MediaType.TEXT_HTML;
-        HttpHeaders headers = new HttpHeaders();
-        if(tipoArchio.equals(sessionData.getArchivoFormato())){
-            if(null != sessionData.getArchivoBytes() && sessionData.getArchivoBytes().length > 0){
-                contents = sessionData.getArchivoBytes();
-                LOGGER.info("Se solicita el tipo de archivo correcto: " + tipoArchio + ", con un tamaño de: " + size);
-                switch(tipoArchio){
-                    case "pdf":
-                        mediaType = MediaType.APPLICATION_PDF;
-                        break;
-                    case "tiff":
-                        contents = TransformacionArchivos.decodeBase64(new String(contents));
-                        mediaType = MediaType.APPLICATION_OCTET_STREAM;
-                        headers.setContentDispositionFormData("attachment", "imagen.tiff");
-                        break;
-                    case "jpg":
-                        contents = TransformacionArchivos.decodeBase64(new String(contents));
-                        mediaType = MediaType.IMAGE_JPEG;
-                        break;
-                }
-                size = contents.length;
-            }else{
-                LOGGER.info("El contenido en memoria es 0.");
-            }
-        }
-        else{
-            LOGGER.info("No se solicito el archivo correcto: " + sessionData.getArchivoFormato() + ", solicitado: " + tipoArchio);
-        }
-        headers.setContentType(mediaType);
-        headers.setContentLength(size);
-        return new ResponseEntity<>(contents, headers, HttpStatus.OK);
-    }
+//    @GetMapping(value = "/descargar/{tipoArchio:pdf|tiff|jpg}", produces = {MediaType.APPLICATION_PDF_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE})
+//    public ResponseEntity<byte[]> descargarArchivo(HttpServletResponse response, @PathVariable String tipoArchio) throws IOException {
+//        String respuestaDefault = "<h2>No se ha encontrado el archivo solicitado</h2>";
+//        int size = respuestaDefault.length();
+//        byte[] contents = respuestaDefault.getBytes();
+//        MediaType mediaType = MediaType.TEXT_HTML;
+//        HttpHeaders headers = new HttpHeaders();
+//        if(tipoArchio.equals(sessionData.getArchivoFormato())){
+//            if(null != sessionData.getArchivoBytes() && sessionData.getArchivoBytes().length > 0){
+//                contents = sessionData.getArchivoBytes();
+//                LOGGER.info("Se solicita el tipo de archivo correcto: " + tipoArchio + ", con un tamaño de: " + size);
+//                switch(tipoArchio){
+//                    case "pdf":
+//                        mediaType = MediaType.APPLICATION_PDF;
+//                        break;
+//                    case "tiff":
+//                        contents = TransformacionArchivos.decodeBase64(new String(contents));
+//                        mediaType = MediaType.APPLICATION_OCTET_STREAM;
+//                        headers.setContentDispositionFormData("attachment", "imagen.tiff");
+//                        break;
+//                    case "jpg":
+//                        contents = TransformacionArchivos.decodeBase64(new String(contents));
+//                        mediaType = MediaType.IMAGE_JPEG;
+//                        break;
+//                }
+//                size = contents.length;
+//            }else{
+//                LOGGER.info("El contenido en memoria es 0.");
+//            }
+//        }
+//        else{
+//            LOGGER.info("No se solicito el archivo correcto: " + sessionData.getArchivoFormato() + ", solicitado: " + tipoArchio);
+//        }
+//        headers.setContentType(mediaType);
+//        headers.setContentLength(size);
+//        return new ResponseEntity<>(contents, headers, HttpStatus.OK);
+//    }
     
 }

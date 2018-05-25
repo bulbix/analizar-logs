@@ -17,7 +17,7 @@
                     <div class="form-group">
                         <div class="col-sm-10 col-sm-offset-1">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-4" style="display:none">
                                     <div class="row">
                                         <div class="col-md-12">
                                             <label class="checkbox-inline">
@@ -34,7 +34,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-3" style="display:none">
                                     <div class="row">
                                         <div class="col-md-12">
                                             <label class="checkbox-inline">
@@ -51,7 +51,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-5" style="display:none">
                                     <div class="row">
                                         <div class="col-md-12">
                                             <label class="checkbox-inline">
