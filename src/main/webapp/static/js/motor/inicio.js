@@ -432,9 +432,9 @@ myAngularApp.controller('BusquedasController', function ($scope, $http, $window)
             })
             .then(function (response){
                 console.log("Se obtienen la informacion del usuario: ");
-                console.log(response);
+                //console.log(response);
                 if(null !== response.data && response.data !== ''){
-                    console.log(JSON.stringify(response.data, undefined, 2));
+                    //console.log(JSON.stringify(response.data, undefined, 2));
                     escribirDataResult(syntaxHighlightJSON(response.data));
                 }
                 else{

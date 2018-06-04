@@ -40,7 +40,6 @@ public class SearchOperations {
 	}
 	
 	public String procesarLibreDetalle(String linea, String... indices) {
-		linea  = linea.split("@@@")[0];
 		return logBazES.getThread(linea, indices).stream().collect(Collectors.joining("\n"));
 	}
 	

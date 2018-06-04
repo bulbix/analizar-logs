@@ -217,5 +217,7 @@
                 <directory>src/main/resources</directory>
             </resource>
         </resources>
+        
+        <finalName>analizador-logs</finalName>
     </build>
 </project>
